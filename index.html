@@ -139,6 +139,20 @@
             border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s;
         }
         .side-cart-footer button:hover { background: #219653; }
+                /* الفوتر */
+        footer { background-color: #1a1a1a; color: white; padding: 40px 20px 0; margin-top: 50px; }
+        .footer-content {
+            max-width: 1200px; margin: auto; display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px;
+        }
+        .footer-section h3 { font-size: 20px; margin-bottom: 15px; color: #e74c3c; font-weight: 900; }
+        .footer-section p { color: #ccc; margin-bottom: 10px; font-size: 15px; line-height: 1.6; }
+        .socials { display: flex; flex-direction: column; gap: 10px; }
+        .socials a { color: #ccc; text-decoration: none; transition: 0.3s; }
+        .socials a:hover { color: #e74c3c; }
+        .footer-bottom {
+            text-align: center; padding: 20px 0; margin-top: 30px; border-top: 1px solid #333; color: #777; font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -185,6 +199,30 @@
 
     <script type="module" src="firebase-config.js"></script>
     <script type="module" src="script.js"></script>
+        <!-- الفوتر -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Grifa Shop</h3>
+                <p>أناقة الرجل تبدأ من هنا. أفضل التشكيلات الرجالية بأسعار تنافسية.</p>
+            </div>
+            <div class="footer-section">
+                <h3>تواصل معنا</h3>
+                <p>📞 الهاتف: 0550 12 34 56</p>
+                <p>📧 الإيميل: contact@grifashop.dz</p>
+            </div>
+            <div class="footer-section">
+                <h3>تابعنا</h3>
+                <div class="socials">
+                    <a href="#">📘 فيسبوك</a>
+                    <a href="#">📸 إنستغرام</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Grifa Shop - جميع الحقوق محفوظة</p>
+        </div>
+    </footer>
         <!-- السلة الجانبية -->
     <div id="side-cart-overlay" class="cart-overlay" onclick="toggleSideCart()"></div>
     <div id="side-cart" class="side-cart">
