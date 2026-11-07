@@ -3,7 +3,6 @@ import { db } from './firebase-config.js';
 import { collection, getDocs } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
 
 let cart = JSON.parse(localStorage.getItem('grifa_cart')) || [];
-
 function updateCartCount() {
     const cartCountElement = document.getElementById('cart-count');
     if (cartCountElement) {
@@ -15,8 +14,9 @@ function updateCartCount() {
 window.addToCart = function(productName, productPrice) {
     cart.push({ name: productName, price: productPrice });
     localStorage.setItem('grifa_cart', JSON.stringify(cart));
-    updateCartCount();
-    alert("تمت إضافة " + productName + " إلى السلة بنجاح!");
+    updateCartCount(); // نحدثو العدد
+    renderSideCart();  // نعرضو السلة الجانبية
+    toggleSideCart();  // نفتحو السلة الجانبية
 };
 
 async function displayProducts() {
@@ -85,3 +85,51 @@ window.filterProducts = function(category) {
         filtered.forEach(product => createProductCard(product));
     }
 }
+// دالة باش نفتحو ونسكرو السلة
+window.toggleSideCart = function() {
+    const sideCart = document.getElementById('side-cart');
+    const overlay = document.getElementById('side-cart-overlay');
+    if (sideCart) sideCart.classList.toggle('active');
+    if (overlay) overlay.classList.toggle('active');
+};
+
+// دالة باش نعرضو المنتجات داخل السلة الجانبية
+function renderSideCart() {
+    const container = document.getElementById('side-cart-items');
+    const totalElement = document.getElementById('side-cart-total');
+    if (!container || !totalElement) return;
+
+    container.innerHTML = '';
+    let total = 0;
+
+    if (cart.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:#777;">السلة فارغة</p>';
+    } else {
+        cart.forEach((item, index) => {
+            total += item.price;
+            container.innerHTML += `
+                <div class="side-cart-item">
+                    <div>
+                        <h4>${item.name}</h4>
+                        <p>${item.price} دج</p>
+                    </div>
+                    <button onclick="removeFromSideCart(${index})">✖</button>
+                </div>
+            `;
+        });
+    }
+    totalElement.innerText = total;
+}
+
+// دالة باش نحذفو منتج من السلة
+window.removeFromSideCart = function(index) {
+    cart.splice(index, 1);
+    localStorage.setItem('grifa_cart', JSON.stringify(cart));
+    updateCartCount();
+    renderSideCart();
+};
+
+// كي تفتح الصفحة، نعرضو السلة
+document.addEventListener('DOMContentLoaded', () => {
+    renderSideCart();
+});
