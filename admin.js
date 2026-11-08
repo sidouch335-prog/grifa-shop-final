@@ -26,19 +26,37 @@ async function loadDashboardData() {
         document.getElementById('total-products').innerText = productsCount;
 
         // جلب الطلبات
+               // جلب الطلبات
         const ordersSnapshot = await getDocs(collection(db, "orders"));
         let totalSales = 0;
         let ordersCount = 0;
+        const ordersTable = document.getElementById('orders-table')?.getElementsByTagName('tbody')[0];
+        
+        if (ordersTable) ordersTable.innerHTML = '';
 
         ordersSnapshot.forEach((doc) => {
             const order = doc.data();
             totalSales += order.total || 0;
             ordersCount++;
+
+            // نعرضو الطلب في الجدول (إذا كان الجدول كاين)
+            if (ordersTable) {
+                let itemsList = order.items ? order.items.map(item => `${item.name} (${item.price} دج)`).join(', ') : 'غير محدد';
+                ordersTable.innerHTML += `
+                    <tr>
+                        <td>${order.name}</td>
+                        <td>${order.phone}</td>
+                        <td>${order.wilaya} - ${order.address}</td>
+                        <td>${itemsList}</td>
+                        <td style="color: #e74c3c; font-weight: bold;">${order.total} دج</td>
+                        <td style="color: #f39c12; font-weight: bold;">${order.status || 'قيد الانتظار'}</td>
+                    </tr>
+                `;
+            }
         });
 
         document.getElementById('total-sales').innerText = totalSales + ' دج';
         document.getElementById('total-orders').innerText = ordersCount;
-
     } catch (error) {
         console.error("خطأ في جلب البيانات: ", error);
     }

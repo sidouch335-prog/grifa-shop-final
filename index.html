@@ -153,6 +153,14 @@
         .footer-bottom {
             text-align: center; padding: 20px 0; margin-top: 30px; border-top: 1px solid #333; color: #777; font-size: 14px;
         }
+                /* تصميم الإشعار */
+        .toast {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
+            background: #27ae60; color: white; padding: 15px 30px; border-radius: 50px;
+            font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            opacity: 0; transition: 0.4s ease; z-index: 1000; pointer-events: none;
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
     </style>
 </head>
 <body>
@@ -223,6 +231,8 @@
             <p>&copy; 2024 Grifa Shop - جميع الحقوق محفوظة</p>
         </div>
     </footer>
+        <!-- إشعار الإضافة للسلة -->
+    <div id="toast" class="toast">تمت الإضافة إلى السلة ✅</div>
         <!-- السلة الجانبية -->
     <div id="side-cart-overlay" class="cart-overlay" onclick="toggleSideCart()"></div>
     <div id="side-cart" class="side-cart">

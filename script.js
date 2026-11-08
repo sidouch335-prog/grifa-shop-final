@@ -12,19 +12,26 @@ function updateCartCount() {
 
 // هنا صلحنا المشكل: درنا window.addToCart باش الأزرار يقدرو يشوفوها
 window.addToCart = function(productName, productPrice, productImage) {
-    // نشوفو واش المنتج راه كاين في السلة
     const existingItem = cart.find(item => item.name === productName);
     
     if (existingItem) {
-        existingItem.quantity += 1; // إذا كان، نزيدو الكمية
+        existingItem.quantity += 1;
     } else {
-        cart.push({ name: productName, price: productPrice, image: productImage, quantity: 1 }); // إذا ماكانش، نزيدوه
+        cart.push({ name: productName, price: productPrice, image: productImage, quantity: 1 });
     }
     
     localStorage.setItem('grifa_cart', JSON.stringify(cart));
     updateCartCount();
-    renderSideCart(); // نحدثو السلة الجانبية
-    toggleSideCart(); // نفتحوها
+    renderSideCart();
+    
+    // إظهار الإشعار بدل الـ alert
+    const toast = document.getElementById('toast');
+    if (toast) {
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2500); // كيتخبى بعد ثانيتين ونص
+    }
+    
+    toggleSideCart(); // نفتحو السلة
 };
 
 async function displayProducts() {
