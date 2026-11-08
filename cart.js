@@ -1,32 +1,62 @@
 let cart = JSON.parse(localStorage.getItem('grifa_cart')) || [];
 const container = document.getElementById('cart-items-container');
-const totalBox = document.getElementById('total-box');
-const totalPriceElement = document.getElementById('total-price');
+const summaryBox = document.getElementById('summary-box');
+const subtotalElement = document.getElementById('subtotal-price');
+const totalElement = document.getElementById('total-price');
 
-let total = 0;
+function renderCart() {
+    container.innerHTML = '';
+    let total = 0;
+    let totalItems = 0;
 
-if (cart.length === 0) {
-    container.innerHTML = '<div class="empty-cart"><h2>السلة فارغة 🛒</h2><p>روح للمتجر وزيد منتجات.</p></div>';
-} else {
+    if (cart.length === 0) {
+        container.innerHTML = '<div class="empty-cart"><h2>السلة فارغة 🛒</h2><p>روح للمتجر وزيد منتجات.</p></div>';
+        summaryBox.style.display = 'none';
+        return;
+    }
+
     cart.forEach((item, index) => {
-        total += item.price;
+        total += item.price * item.quantity;
+        totalItems += item.quantity;
+
         const itemDiv = document.createElement('div');
         itemDiv.className = 'cart-item';
         itemDiv.innerHTML = `
+            <img src="${item.image || 'https://via.placeholder.com/80'}" alt="${item.name}">
             <div class="cart-item-info">
                 <h3>${item.name}</h3>
                 <p>${item.price} دج</p>
             </div>
-            <button class="remove-btn" onclick="removeItem(${index})">حذف</button>
+            <div class="quantity-controls">
+                <button onclick="updateQuantity(${index}, -1)">-</button>
+                <span>${item.quantity}</span>
+                <button onclick="updateQuantity(${index}, 1)">+</button>
+            </div>
+            <button class="remove-btn" onclick="removeItem(${index})">✖</button>
         `;
         container.appendChild(itemDiv);
     });
-    totalBox.style.display = 'block';
-    totalPriceElement.innerText = total;
+
+    summaryBox.style.display = 'block';
+    subtotalElement.innerText = total + ' دج';
+    totalElement.innerText = total + ' دج';
 }
 
-function removeItem(index) {
+// تحديث الكمية
+window.updateQuantity = function(index, change) {
+    if (cart[index].quantity + change > 0) {
+        cart[index].quantity += change;
+        localStorage.setItem('grifa_cart', JSON.stringify(cart));
+        renderCart();
+    }
+};
+
+// حذف منتج
+window.removeItem = function(index) {
     cart.splice(index, 1);
     localStorage.setItem('grifa_cart', JSON.stringify(cart));
-    window.location.reload();
-}
+    renderCart();
+};
+
+// تشغيل عند فتح الصفحة
+document.addEventListener('DOMContentLoaded', renderCart);

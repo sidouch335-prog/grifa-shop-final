@@ -11,12 +11,20 @@ function updateCartCount() {
 }
 
 // هنا صلحنا المشكل: درنا window.addToCart باش الأزرار يقدرو يشوفوها
-window.addToCart = function(productName, productPrice) {
-    cart.push({ name: productName, price: productPrice });
+window.addToCart = function(productName, productPrice, productImage) {
+    // نشوفو واش المنتج راه كاين في السلة
+    const existingItem = cart.find(item => item.name === productName);
+    
+    if (existingItem) {
+        existingItem.quantity += 1; // إذا كان، نزيدو الكمية
+    } else {
+        cart.push({ name: productName, price: productPrice, image: productImage, quantity: 1 }); // إذا ماكانش، نزيدوه
+    }
+    
     localStorage.setItem('grifa_cart', JSON.stringify(cart));
-    updateCartCount(); // نحدثو العدد
-    renderSideCart();  // نعرضو السلة الجانبية
-    toggleSideCart();  // نفتحو السلة الجانبية
+    updateCartCount();
+    renderSideCart(); // نحدثو السلة الجانبية
+    toggleSideCart(); // نفتحوها
 };
 
 async function displayProducts() {

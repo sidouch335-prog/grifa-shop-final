@@ -4,34 +4,100 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>سلة المشتريات - Grifa Shop</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f4f4f9; }
-        header { background-color: #1a1a1a; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
-        header h1 { margin: 0; font-size: 20px; }
-        .back-btn { color: white; text-decoration: none; font-size: 14px; background: #333; padding: 8px 12px; border-radius: 5px; }
-        .container { padding: 15px; max-width: 600px; margin: auto; }
-        .cart-item { background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .cart-item-info h3 { margin: 0 0 5px 0; font-size: 16px; }
-        .cart-item-info p { margin: 0; color: #e74c3c; font-weight: bold; }
-        .remove-btn { background: #e74c3c; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
-        .total-box { background: #1a1a1a; color: white; padding: 15px; border-radius: 8px; margin-top: 20px; text-align: center; }
-        .total-box h2 { margin: 0 0 10px 0; font-size: 20px; }
-        .checkout-btn { background: #27ae60; color: white; border: none; padding: 12px; width: 100%; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .empty-cart { text-align: center; padding: 50px 0; color: #777; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tajawal', sans-serif; }
+        body { background-color: #f4f7f6; color: #333; }
+
+        /* القائمة العلوية */
+        header { 
+            background-color: #1a1a1a; color: white; padding: 15px 20px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100;
+        }
+        .logo { font-size: 24px; font-weight: 900; text-decoration: none; color: white; }
+        .logo span { color: #e74c3c; }
+        .back-btn { color: #ccc; text-decoration: none; font-weight: bold; transition: 0.3s; display: flex; align-items: center; gap: 5px; }
+        .back-btn:hover { color: white; }
+
+        /* حاوية السلة */
+        .container { padding: 30px 20px; max-width: 900px; margin: auto; display: grid; grid-template-columns: 2fr 1fr; gap: 30px; }
+        @media (max-width: 768px) { .container { grid-template-columns: 1fr; } }
+
+        .page-title { font-size: 28px; font-weight: 900; margin-bottom: 20px; grid-column: 1 / -1; }
+
+        /* كارت المنتج */
+        .cart-item { 
+            background: white; padding: 15px; margin-bottom: 15px; border-radius: 12px; 
+            display: flex; align-items: center; gap: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #eee;
+        }
+        .cart-item img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; }
+        .cart-item-info { flex-grow: 1; }
+        .cart-item-info h3 { margin: 0 0 5px 0; font-size: 16px; font-weight: 700; }
+        .cart-item-info p { margin: 0; color: #e74c3c; font-weight: bold; font-size: 18px; }
+        
+        /* التحكم في الكمية */
+        .quantity-controls { display: flex; align-items: center; gap: 10px; background: #f4f7f6; padding: 5px; border-radius: 8px; }
+        .quantity-controls button { background: white; border: 1px solid #ddd; width: 30px; height: 30px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 18px; transition: 0.2s; }
+        .quantity-controls button:hover { background: #1a1a1a; color: white; }
+        .quantity-controls span { font-weight: bold; width: 20px; text-align: center; }
+
+        .remove-btn { background: none; border: none; color: #999; cursor: pointer; font-size: 20px; transition: 0.3s; }
+        .remove-btn:hover { color: #e74c3c; transform: scale(1.1); }
+
+        /* صندوق المجموع (Sidebar) */
+        .summary-box { 
+            background: white; padding: 25px; border-radius: 12px; 
+            box-shadow: 0 8px 25px rgba(0,0,0,0.05); height: fit-content; position: sticky; top: 100px;
+        }
+        .summary-box h2 { font-size: 20px; margin-bottom: 20px; border-bottom: 2px solid #f4f7f6; padding-bottom: 10px; }
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 15px; color: #555; }
+        .summary-row.total { font-size: 22px; font-weight: 900; color: #1a1a1a; margin-top: 20px; border-top: 2px solid #f4f7f6; padding-top: 20px; }
+        
+        .checkout-btn { 
+            background: #27ae60; color: white; border: none; padding: 15px; 
+            width: 100%; border-radius: 8px; font-size: 18px; font-weight: bold; 
+            cursor: pointer; transition: 0.3s; text-decoration: none; display: block; text-align: center; margin-top: 20px;
+        }
+        .checkout-btn:hover { background: #219653; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3); }
+
+        .empty-cart { text-align: center; padding: 60px 0; color: #777; grid-column: 1 / -1; }
+        .empty-cart h2 { font-size: 24px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
+
     <header>
-        <h1>سلة المشتريات</h1>
-        <a href="index.html" class="back-btn">رجوع للمتجر</a>
+        <a href="index.html" class="logo">Grifa<span>Shop</span></a>
+        <a href="index.html" class="back-btn">← <span>مواصلة التسوق</span></a>
     </header>
+
     <div class="container">
-        <div id="cart-items-container"></div>
-        <div class="total-box" id="total-box" style="display: none;">
-            <h2>المجموع الكلي: <span id="total-price">0</span> دج</h2>
-            <a href="checkout.html" style="display: block; text-align: center; text-decoration: none;" class="checkout-btn">إتمام الطلب</a>
+        <h1 class="page-title">سلة المشتريات 🛒</h1>
+        
+        <div id="cart-items-container">
+            <!-- المنتجات راح تطلع هنا -->
+        </div>
+
+        <div class="summary-box" id="summary-box" style="display: none;">
+            <h2>ملخص الطلب</h2>
+            <div class="summary-row">
+                <span>المجموع الفرعي:</span>
+                <span id="subtotal-price">0 دج</span>
+            </div>
+            <div class="summary-row">
+                <span>التوصيل:</span>
+                <span>يحدد في الخطوة القادمة</span>
+            </div>
+            <div class="summary-row total">
+                <span>المجموع الكلي:</span>
+                <span id="total-price">0 دج</span>
+            </div>
+            <a href="checkout.html" class="checkout-btn">إتمام الطلب ✅</a>
         </div>
     </div>
+
     <script src="cart.js"></script>
 </body>
 </html>
