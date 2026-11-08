@@ -3,7 +3,7 @@ import { getFirestore } from "https://www.gstatic.com/firebasejs/13.2.0/firebase
 import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCgDhHeiUoTsZx40jlGbpVBZxbiXk69BdI",
+   apiKey: "AIzaSyCgDhHeiUoTSzx40jlGBpVBZxbiXk69BdI",
   authDomain: "grifa-shop.firebaseapp.com",
   projectId: "grifa-shop",
   storageBucket: "grifa-shop.firebasestorage.app",
