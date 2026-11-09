@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('p-price').innerText = currentProduct.price + ' دج';
         document.getElementById('p-image').src = currentProduct.image;
 
-        // --- هنا كنعرضو المقاسات حسب النوع ---
+        // هنا كنعرضو المقاسات حسب النوع
         const sizeContainer = document.getElementById('size-options');
         sizeContainer.innerHTML = ''; // نمسحو المقاسات القديمة
 
@@ -37,6 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <button class="variant-btn" onclick="selectVariant(this, 'size', 'L')">L</button>
                 <button class="variant-btn" onclick="selectVariant(this, 'size', 'XL')">XL</button>
             `;
+            selectedSize = 'S'; // القيمة الافتراضية للقميص
         } else if (type === 'pants') {
             sizeContainer.innerHTML = `
                 <button class="variant-btn active" onclick="selectVariant(this, 'size', '38')">38</button>
@@ -45,6 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <button class="variant-btn" onclick="selectVariant(this, 'size', '44')">44</button>
                 <button class="variant-btn" onclick="selectVariant(this, 'size', '46')">46</button>
             `;
+            selectedSize = '38'; // القيمة الافتراضية للسروال
         } else if (type === 'shoes') {
             sizeContainer.innerHTML = `
                 <button class="variant-btn active" onclick="selectVariant(this, 'size', '40')">40</button>
@@ -53,13 +55,50 @@ document.addEventListener('DOMContentLoaded', () => {
                 <button class="variant-btn" onclick="selectVariant(this, 'size', '43')">43</button>
                 <button class="variant-btn" onclick="selectVariant(this, 'size', '44')">44</button>
             `;
+            selectedSize = '40'; // القيمة الافتراضية للحذاء
         } else {
             // إكسسوار: ما كاينش مقاسات
             sizeContainer.innerHTML = '<p style="color:#777;">لا توجد مقاسات لهذا المنتج</p>';
+            selectedSize = 'بدون مقاس';
         }
 
         document.title = currentProduct.name + ' - Grifa Shop';
     } else {
+        // إذا ما كاينش منتج، نرجعوه للرئيسية
         window.location.href = 'index.html';
     }
 });
+
+// دالة الإضافة للسلة مع المقاس واللون
+window.addToCartWithVariants = function() {
+    if (!currentProduct) return;
+
+    // نجيبو السلة من الذاكرة
+    let cart = JSON.parse(localStorage.getItem('grifa_cart')) || [];
+    
+    // نصاوبو اسم خاص بالمنتج مع المقاس واللون
+    const fullName = `${currentProduct.name} (${selectedSize} - ${selectedColor})`;
+    
+    // نشوفو واش كاين نفس المنتج بنفس المقاس واللون
+    const existingItem = cart.find(item => item.name === fullName);
+    
+    if (existingItem) {
+        existingItem.quantity += 1;
+    } else {
+        cart.push({ 
+            name: fullName, 
+            price: currentProduct.price, 
+            image: currentProduct.image, 
+            quantity: 1 
+        });
+    }
+
+    // نحفظو في الذاكرة
+    localStorage.setItem('grifa_cart', JSON.stringify(cart));
+    
+    // نطلعو إشعار بلي تزاد
+    alert(`تمت إضافة ${fullName} إلى السلة!`);
+    
+    // نرجعوه لصفحة السلة باش يشوفها
+    window.location.href = 'cart.html'; 
+};
