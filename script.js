@@ -70,17 +70,27 @@ function createProductCard(product) {
     const container = document.getElementById('products-container');
     const card = document.createElement('div'); 
     card.className = 'product-card';
+    
+    // هنا كناخدو النوع، وإلا ماكانش كنعطيوه 'shirt' كقيمة افتراضية
+    const productType = product.type || 'shirt'; 
+
     card.innerHTML = `
-        <img src="${product.image}" alt="${product.name}">
+        <img src="${product.image}" alt="${product.name}" style="cursor:pointer;" onclick="openProductPage('${product.name}', ${product.price}, '${product.image}', '${productType}')">
         <div class="product-info">
-            <h3>${product.name}</h3>
+            <h3 style="cursor:pointer;" onclick="openProductPage('${product.name}', ${product.price}, '${product.image}', '${productType}')">${product.name}</h3>
             <p class="price">${product.price} دج</p>
-            <button onclick="addToCart('${product.name}', ${product.price})">أضف إلى السلة</button>
+            <button onclick="addToCart('${product.name}', ${product.price}, '${product.image}')">أضف إلى السلة</button>
         </div>
     `;
     container.appendChild(card);
 }
 
+// دالة فتح صفحة المنتج (كتحفظ النوع باش تمشي بيه لصفحة المنتج)
+window.openProductPage = function(name, price, image, type) {
+    const product = { name, price, image, type };
+    localStorage.setItem('selectedProduct', JSON.stringify(product));
+    window.location.href = 'product.html';
+};
 // دالة الفلترة (كي تكليكي على زر)
 window.filterProducts = function(category) {
     const container = document.getElementById('products-container');

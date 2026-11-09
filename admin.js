@@ -66,15 +66,17 @@ async function loadDashboardData() {
 const form = document.getElementById('add-product-form');
 form.addEventListener('submit', async function(e) {
     e.preventDefault();
-    const name = document.getElementById('p-name').value;
+        const name = document.getElementById('p-name').value;
     const price = parseFloat(document.getElementById('p-price').value);
     const image = document.getElementById('p-image').value;
+    const type = document.getElementById('p-type').value; // زدنا هاد السطر
 
     try {
         await addDoc(collection(db, "products"), {
             name: name,
             price: price,
             image: image,
+            type: type, // زدنا هاد السطر باش يتسجل النوع
             createdAt: new Date()
         });
         alert("تمت إضافة المنتج بنجاح! ☁️");

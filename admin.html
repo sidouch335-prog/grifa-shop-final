@@ -37,12 +37,12 @@
         .form-card h2 { margin-bottom: 20px; font-size: 20px; font-weight: 900; border-bottom: 2px solid #eee; padding-bottom: 10px; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; }
-        .form-group input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-family: inherit; }
+        .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-family: inherit; }
         .submit-btn { background: #1a1a1a; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
         .submit-btn:hover { background: #e74c3c; }
 
         /* جدول المنتجات والطلبات */
-        .table-container { background: white; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); overflow: hidden; }
+        .table-container { background: white; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); overflow: hidden; margin-bottom: 40px; }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 15px; text-align: right; border-bottom: 1px solid #eee; }
         th { background: #f9f9f9; font-weight: bold; color: #555; }
@@ -105,6 +105,19 @@
                     <label>رابط الصورة (URL)</label>
                     <input type="url" id="p-image" required placeholder="https://...">
                 </div>
+                
+                <!-- خانة النوع اللي زدنا -->
+                <div class="form-group">
+                    <label>نوع المنتج</label>
+                    <select id="p-type" required>
+                        <option value="shirt">قميص</option>
+                        <option value="pants">سروال</option>
+                        <option value="shoes">حذاء</option>
+                        <option value="accessory">إكسسوار</option>
+                    </select>
+                </div>
+
+                <!-- الزر في بلاصتو الصحيحة في الأخير -->
                 <button type="submit" class="submit-btn">إضافة المنتج للمتجر</button>
             </form>
         </div>
@@ -125,8 +138,9 @@
                 </tbody>
             </table>
         </div>
-                <!-- جدول الطلبات -->
-        <h2 style="margin-top: 40px; margin-bottom: 20px;">الطلبات الواردة</h2>
+
+        <!-- جدول الطلبات -->
+        <h2 style="margin-bottom: 20px;">الطلبات الواردة</h2>
         <div class="table-container">
             <table id="orders-table">
                 <thead>

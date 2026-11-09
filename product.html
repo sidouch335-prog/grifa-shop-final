@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تفاصيل المنتج - Grifa Shop</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tajawal', sans-serif; }
+        body { background-color: #f8f9fa; color: #333; }
+
+        /* القائمة العلوية */
+        header { 
+            background-color: #1a1a1a; color: white; padding: 15px 20px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100;
+        }
+        .logo { font-size: 24px; font-weight: 900; text-decoration: none; color: white; }
+        .logo span { color: #e74c3c; }
+        .back-btn { color: #ccc; text-decoration: none; font-weight: bold; transition: 0.3s; }
+        .back-btn:hover { color: white; }
+
+        /* حاوية المنتج */
+        .container { padding: 40px 20px; max-width: 1000px; margin: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+        @media (max-width: 768px) { .container { grid-template-columns: 1fr; } }
+
+        .product-image { width: 100%; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        
+        .product-details h1 { font-size: 32px; font-weight: 900; margin-bottom: 15px; }
+        .product-price { font-size: 28px; color: #e74c3c; font-weight: bold; margin-bottom: 25px; }
+        .product-desc { color: #666; line-height: 1.8; margin-bottom: 30px; }
+
+        /* اختيار المقاسات والألوان */
+        .variant-group { margin-bottom: 25px; }
+        .variant-group label { display: block; font-weight: bold; margin-bottom: 10px; font-size: 18px; }
+        .variant-options { display: flex; gap: 10px; flex-wrap: wrap; }
+        .variant-btn { 
+            padding: 10px 20px; border: 2px solid #ddd; background: white; 
+            border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.3s;
+        }
+        .variant-btn:hover { border-color: #1a1a1a; }
+        .variant-btn.active { background: #1a1a1a; color: white; border-color: #1a1a1a; }
+
+        .add-to-cart-btn { 
+            width: 100%; background: #27ae60; color: white; border: none; padding: 18px; 
+            border-radius: 10px; font-size: 20px; font-weight: bold; cursor: pointer; transition: 0.3s;
+            margin-top: 20px;
+        }
+        .add-to-cart-btn:hover { background: #219653; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4); }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="index.html" class="logo">Grifa<span>Shop</span></a>
+        <a href="index.html" class="back-btn">← العودة للمتجر</a>
+    </header>
+
+    <div class="container">
+        <img id="p-image" src="https://via.placeholder.com/500" alt="صورة المنتج" class="product-image">
+        
+        <div class="product-details">
+            <h1 id="p-name">جاري التحميل...</h1>
+            <p class="product-price" id="p-price">0 دج</p>
+            <p class="product-desc">هذا وصف تجريبي للمنتج. جودة عالية ومريحة، تناسب جميع الأذواق. متوفرة الآن في متجر Grifa Shop.</p>
+
+            <!-- اختيار المقاس -->
+            <div class="variant-group">
+                <label>المقاس:</label>
+                <div class="variant-options" id="size-options">
+                    <button class="variant-btn active" onclick="selectVariant(this, 'size', 'S')">S</button>
+                    <button class="variant-btn" onclick="selectVariant(this, 'size', 'M')">M</button>
+                    <button class="variant-btn" onclick="selectVariant(this, 'size', 'L')">L</button>
+                    <button class="variant-btn" onclick="selectVariant(this, 'size', 'XL')">XL</button>
+                </div>
+            </div>
+
+            <!-- اختيار اللون -->
+            <div class="variant-group">
+                <label>اللون:</label>
+                <div class="variant-options" id="color-options">
+                    <button class="variant-btn active" onclick="selectVariant(this, 'color', 'أسود')">أسود</button>
+                    <button class="variant-btn" onclick="selectVariant(this, 'color', 'أبيض')">أبيض</button>
+                    <button class="variant-btn" onclick="selectVariant(this, 'color', 'أزرق')">أزرق</button>
+                </div>
+            </div>
+
+            <button class="add-to-cart-btn" onclick="addToCartWithVariants()">أضف إلى السلة 🛒</button>
+        </div>
+    </div>
+
+    <script type="module" src="product.js"></script>
+</body>
+</html>
