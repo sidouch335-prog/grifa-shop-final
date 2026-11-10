@@ -1,8 +1,10 @@
-let allProducts = [];
 import { db } from './firebase-config.js';
 import { collection, getDocs } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
 
 let cart = JSON.parse(localStorage.getItem('grifa_cart')) || [];
+let allProducts = []; // كنخزنو فيها المنتجات باش نفلتروهم
+
+// تحديث عدد السلة
 function updateCartCount() {
     const cartCountElement = document.getElementById('cart-count');
     if (cartCountElement) {
@@ -10,7 +12,7 @@ function updateCartCount() {
     }
 }
 
-// هنا صلحنا المشكل: درنا window.addToCart باش الأزرار يقدرو يشوفوها
+// إضافة منتج للسلة (من الصفحة الرئيسية)
 window.addToCart = function(productName, productPrice, productImage) {
     const existingItem = cart.find(item => item.name === productName);
     
@@ -22,18 +24,12 @@ window.addToCart = function(productName, productPrice, productImage) {
     
     localStorage.setItem('grifa_cart', JSON.stringify(cart));
     updateCartCount();
-    renderSideCart();
     
-    // إظهار الإشعار بدل الـ alert
-    const toast = document.getElementById('toast');
-    if (toast) {
-        toast.classList.add('show');
-        setTimeout(() => toast.classList.remove('show'), 2500); // كيتخبى بعد ثانيتين ونص
-    }
-    
-    toggleSideCart(); // نفتحو السلة
+    if (window.renderSideCart) window.renderSideCart();
+    if (window.toggleSideCart) window.toggleSideCart();
 };
 
+// جلب وعرض المنتجات من السحابة
 async function displayProducts() {
     const container = document.getElementById('products-container');
     if (!container) return;
@@ -49,35 +45,31 @@ async function displayProducts() {
             return;
         }
 
-                querySnapshot.forEach((doc) => {
-            const product = doc.data();  
-            product.category = product.category || 'shirt'; // تصنيف افتراضي
-            allProducts.push(product); // نزيدو المنتج للقائمة
-            createProductCard(product); // نعرضوه
+        querySnapshot.forEach((doc) => {
+            const product = doc.data();
+            product.id = doc.id; // كنحفظو ID
+            allProducts.push(product); 
+            createProductCard(product);
         });
     } catch (error) {
         console.error("خطأ في جلب المنتجات: ", error);
-        container.innerHTML = `<p style="text-align:center; grid-column: span 2; color: red; direction: ltr;">Error: ${error.message}</p>`;
+        container.innerHTML = `<p style="text-align:center; grid-column: span 2; color: red;">Error: ${error.message}</p>`;
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    updateCartCount();
-    displayProducts();
-});
-// دالة تصاوب كارت المنتج (كتستعمل في العرض والفلترة)
+// دالة تصاوب كارت المنتج
 function createProductCard(product) {
     const container = document.getElementById('products-container');
     const card = document.createElement('div'); 
     card.className = 'product-card';
     
-    // هنا كناخدو النوع، وإلا ماكانش كنعطيوه 'shirt' كقيمة افتراضية
-    const productType = product.type || 'shirt'; 
+    const type = product.type || 'shirt';
 
+    // كنخدمو onclick مع JSON.stringify باش نتفاداو مشكل علامات التنصيص
     card.innerHTML = `
-        <img src="${product.image}" alt="${product.name}" style="cursor:pointer;" onclick="openProductPage('${product.name}', ${product.price}, '${product.image}', '${productType}')">
+        <img src="${product.image}" alt="${product.name}" style="cursor:pointer;" onclick='openProductPage(${JSON.stringify(product).replace(/'/g, "&#39;")})'>
         <div class="product-info">
-            <h3 style="cursor:pointer;" onclick="openProductPage('${product.name}', ${product.price}, '${product.image}', '${productType}')">${product.name}</h3>
+            <h3 style="cursor:pointer;" onclick='openProductPage(${JSON.stringify(product).replace(/'/g, "&#39;")})'>${product.name}</h3>
             <p class="price">${product.price} دج</p>
             <button onclick="addToCart('${product.name}', ${product.price}, '${product.image}')">أضف إلى السلة</button>
         </div>
@@ -85,76 +77,14 @@ function createProductCard(product) {
     container.appendChild(card);
 }
 
-// دالة فتح صفحة المنتج (كتحفظ النوع باش تمشي بيه لصفحة المنتج)
-window.openProductPage = function(name, price, image, type) {
-    const product = { name, price, image, type };
+// دالة فتح صفحة المنتج
+window.openProductPage = function(product) {
     localStorage.setItem('selectedProduct', JSON.stringify(product));
     window.location.href = 'product.html';
 };
-// دالة الفلترة (كي تكليكي على زر)
-window.filterProducts = function(category) {
-    const container = document.getElementById('products-container');
-    container.innerHTML = ''; // نمسحو المنتجات القديمة
 
-    // نبدلو ستايل الأزرار (اللي ندوزو عليه كيولي كحل)
-    const buttons = document.querySelectorAll('.category-btn');
-    buttons.forEach(btn => btn.classList.remove('active'));
-    event.target.classList.add('active');
-
-    // إذا اختار "الكل"، نعرضو كلشي، وإلا نعرضو غير اللي يشبه للتصنيف
-    const filtered = category === 'all' ? allProducts : allProducts.filter(p => p.category === category);
-    
-    if (filtered.length === 0) {
-        container.innerHTML = '<p class="loading">لا توجد منتجات في هذا التصنيف.</p>';
-    } else {
-        filtered.forEach(product => createProductCard(product));
-    }
-}
-// دالة باش نفتحو ونسكرو السلة
-window.toggleSideCart = function() {
-    const sideCart = document.getElementById('side-cart');
-    const overlay = document.getElementById('side-cart-overlay');
-    if (sideCart) sideCart.classList.toggle('active');
-    if (overlay) overlay.classList.toggle('active');
-};
-
-// دالة باش نعرضو المنتجات داخل السلة الجانبية
-function renderSideCart() {
-    const container = document.getElementById('side-cart-items');
-    const totalElement = document.getElementById('side-cart-total');
-    if (!container || !totalElement) return;
-
-    container.innerHTML = '';
-    let total = 0;
-
-    if (cart.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#777;">السلة فارغة</p>';
-    } else {
-        cart.forEach((item, index) => {
-            total += item.price;
-            container.innerHTML += `
-                <div class="side-cart-item">
-                    <div>
-                        <h4>${item.name}</h4>
-                        <p>${item.price} دج</p>
-                    </div>
-                    <button onclick="removeFromSideCart(${index})">✖</button>
-                </div>
-            `;
-        });
-    }
-    totalElement.innerText = total;
-}
-
-// دالة باش نحذفو منتج من السلة
-window.removeFromSideCart = function(index) {
-    cart.splice(index, 1);
-    localStorage.setItem('grifa_cart', JSON.stringify(cart));
-    updateCartCount();
-    renderSideCart();
-};
-
-// كي تفتح الصفحة، نعرضو السلة
+// تشغيل عند فتح الصفحة
 document.addEventListener('DOMContentLoaded', () => {
-    renderSideCart();
+    updateCartCount();
+    displayProducts();
 });
