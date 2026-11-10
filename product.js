@@ -97,8 +97,17 @@ window.addToCartWithVariants = function() {
     localStorage.setItem('grifa_cart', JSON.stringify(cart));
     
     // نطلعو إشعار بلي تزاد
-    alert(`تمت إضافة ${fullName} إلى السلة!`);
+      // نطلعو إشعار بلي تزاد
+        // نطلعو إشعار بلي تزاد
+    const toast = document.createElement('div');
+    toast.innerText = `تمت إضافة ${fullName} إلى السلة ✅`;
+    toast.style.cssText = 'position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#27ae60; color:white; padding:15px 30px; border-radius:50px; font-weight:bold; z-index:9999;';
+    document.body.appendChild(toast);
     
-    // نرجعوه لصفحة السلة باش يشوفها
-    window.location.href = 'cart.html'; 
-};
+    // نمسحو الإشعار بعد ثانيتين
+    setTimeout(() => toast.remove(), 2000);
+
+    // نرجعوه لصفحة السلة بعد ثانية (باش الإشعار يبان)
+    setTimeout(() => {
+        window.location.href = 'cart.html'; 
+    }, 1000);
