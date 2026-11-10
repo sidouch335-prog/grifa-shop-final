@@ -9,7 +9,9 @@ function updateCartCount() {
     if (cartCountElement) cartCountElement.innerText = cart.length;
 }
 
-window.addToCart = function(productName, productPrice, productImage) {
+wwindow.addToCart = function(productName, productPrice, productImage) {
+    let cart = JSON.parse(localStorage.getItem('grifa_cart')) || [];
+    
     const existingItem = cart.find(item => item.name === productName);
     
     if (existingItem) {
@@ -19,17 +21,16 @@ window.addToCart = function(productName, productPrice, productImage) {
     }
     
     localStorage.setItem('grifa_cart', JSON.stringify(cart));
-    updateCartCount();
     
-    // نحدثو السلة الجانبية إذا كانت كاينة
-    if (window.renderSideCart) {
-        window.renderSideCart();
-    }
+    if (window.updateCartCount) window.updateCartCount();
+    if (window.renderSideCart) window.renderSideCart();
+    if (window.toggleSideCart) window.toggleSideCart();
     
-    // نفتحو السلة الجانبية إذا كانت كاينة
-    if (window.toggleSideCart) {
-        window.toggleSideCart();
-    }
+    const toast = document.createElement('div');
+    toast.innerText = `تمت إضافة ${productName} إلى السلة ✅`;
+    toast.style.cssText = 'position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#27ae60; color:white; padding:15px 30px; border-radius:50px; font-weight:bold; z-index:9999;';
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 2000);
 };
 async function displayProducts() {
     const container = document.getElementById('products-container');
