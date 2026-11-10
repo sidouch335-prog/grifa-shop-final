@@ -4,12 +4,24 @@ import { collection, addDoc } from "https://www.gstatic.com/firebasejs/13.2.0/fi
 let cart = JSON.parse(localStorage.getItem('grifa_cart')) || [];
 let total = 0;
 
+// أسعار التوصيل حسب الولايات (تقدر تبدلها من بعد)
+const shippingPrices = {
+    "16": 400, // الجزائر
+    "31": 600, // وهران
+    "25": 600, // قسنطينة
+    "19": 500, // سطيف
+    "09": 400, // البليدة
+    "06": 500, // بجاية
+    "default": 800 // باقي الولايات
+};
+
 // نعرضو ملخص الطلب في الصفحة
 function renderSummary() {
     const summaryItems = document.getElementById('summary-items');
     const totalElement = document.getElementById('checkout-total');
     
     summaryItems.innerHTML = '';
+    total = 0; // نعاودو نحسبو المجموع من الصفر
     
     if (cart.length === 0) {
         summaryItems.innerHTML = '<p style="color: #ccc;">السلة فارغة</p>';
@@ -27,8 +39,20 @@ function renderSummary() {
         `;
     });
 
+    // نعرضو المجموع بلا التوصيل دوكا
     totalElement.innerText = total + ' دج';
 }
+
+// كي تبدل الولاية، نزيدو ثمن التوصيل
+document.getElementById('wilaya').addEventListener('change', function() {
+    const wilayaValue = this.value;
+    const wilayaCode = wilayaValue.split(' ')[0]; // ناخدو رقم الولاية فقط
+    const shipping = shippingPrices[wilayaCode] || shippingPrices['default'];
+    const finalTotal = total + shipping;
+    
+    // نعرضو المجموع الجديد مع التوصيل
+    document.getElementById('checkout-total').innerText = finalTotal + ' دج';
+});
 
 // تشغيل الملخص كي تفتح الصفحة
 document.addEventListener('DOMContentLoaded', renderSummary);
@@ -45,8 +69,13 @@ document.getElementById('checkout-form').addEventListener('submit', async functi
 
     const name = document.getElementById('fullname').value;
     const phone = document.getElementById('phone').value;
-    const wilaya = document.getElementById('wilaya').options[document.getElementById('wilaya').selectedIndex].text;
+    const wilaya = document.getElementById('wilaya').value;
     const address = document.getElementById('address').value;
+
+    // نحسبو السعر النهائي (المنتجات + التوصيل)
+    const wilayaCode = wilaya.split(' ')[0];
+    const shipping = shippingPrices[wilayaCode] || shippingPrices['default'];
+    const finalTotal = total + shipping;
 
     // نسجلو الطلب في السحابة
     try {
@@ -56,12 +85,12 @@ document.getElementById('checkout-form').addEventListener('submit', async functi
             wilaya: wilaya,
             address: address,
             items: cart,
-            total: total,
+            total: finalTotal, // نسجلو المجموع مع التوصيل
             date: new Date().toLocaleString('ar-DZ'),
             status: "قيد الانتظار"
         });
 
-        alert(`شكراً ${name}!\nتم استلام طلبك بنجاح.\nالمجموع: ${total} دج\nسنقوم بالاتصال بك على الرقم ${phone} للتأكيد.`);
+        alert(`شكراً ${name}!\nتم استلام طلبك بنجاح.\nالمجموع الكلي مع التوصيل: ${finalTotal} دج\nسنقوم بالاتصال بك على الرقم ${phone} للتأكيد.`);
         
         localStorage.removeItem('grifa_cart'); // نمسحو السلة
         window.location.href = "index.html"; // نرجعوه للرئيسية
