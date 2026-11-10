@@ -11,17 +11,26 @@ function updateCartCount() {
 
 window.addToCart = function(productName, productPrice, productImage) {
     const existingItem = cart.find(item => item.name === productName);
+    
     if (existingItem) {
         existingItem.quantity += 1;
     } else {
         cart.push({ name: productName, price: productPrice, image: productImage, quantity: 1 });
     }
+    
     localStorage.setItem('grifa_cart', JSON.stringify(cart));
     updateCartCount();
-    if (window.renderSideCart) window.renderSideCart();
-    if (window.toggleSideCart) window.toggleSideCart();
+    
+    // نحدثو السلة الجانبية إذا كانت كاينة
+    if (window.renderSideCart) {
+        window.renderSideCart();
+    }
+    
+    // نفتحو السلة الجانبية إذا كانت كاينة
+    if (window.toggleSideCart) {
+        window.toggleSideCart();
+    }
 };
-
 async function displayProducts() {
     const container = document.getElementById('products-container');
     if (!container) return;

@@ -5,12 +5,13 @@ const subtotalElement = document.getElementById('subtotal-price');
 const totalElement = document.getElementById('total-price');
 
 function renderCart() {
+    if (!container) return;
     container.innerHTML = '';
     let total = 0;
 
     if (cart.length === 0) {
         container.innerHTML = '<div class="empty-cart"><h2>السلة فارغة 🛒</h2><p>روح للمتجر وزيد منتجات.</p></div>';
-        summaryBox.style.display = 'none';
+        if (summaryBox) summaryBox.style.display = 'none';
         return;
     }
 
@@ -35,12 +36,13 @@ function renderCart() {
         container.appendChild(itemDiv);
     });
 
-    summaryBox.style.display = 'block';
-    subtotalElement.innerText = total + ' دج';
-    totalElement.innerText = total + ' دج';
+    if (summaryBox) {
+        summaryBox.style.display = 'block';
+        subtotalElement.innerText = total + ' دج';
+        totalElement.innerText = total + ' دج';
+    }
 }
 
-// تحديث الكمية
 window.updateQuantity = function(index, change) {
     if (!cart[index].quantity) cart[index].quantity = 1;
     
@@ -48,15 +50,15 @@ window.updateQuantity = function(index, change) {
         cart[index].quantity += change;
         localStorage.setItem('grifa_cart', JSON.stringify(cart));
         renderCart();
+        if (window.updateCartCount) window.updateCartCount();
     }
 };
 
-// حذف منتج
 window.removeItem = function(index) {
     cart.splice(index, 1);
     localStorage.setItem('grifa_cart', JSON.stringify(cart));
     renderCart();
+    if (window.updateCartCount) window.updateCartCount();
 };
 
-// تشغيل عند فتح الصفحة
 document.addEventListener('DOMContentLoaded', renderCart);
