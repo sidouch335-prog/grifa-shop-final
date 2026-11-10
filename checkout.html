@@ -4,68 +4,119 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>إتمام الطلب - Grifa Shop</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f4f4f9; }
-        header { background-color: #1a1a1a; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
-        header h1 { margin: 0; font-size: 20px; }
-        .back-btn { color: white; text-decoration: none; font-size: 14px; background: #333; padding: 8px 12px; border-radius: 5px; }
-        .container { padding: 20px; max-width: 500px; margin: auto; background: white; border-radius: 10px; margin-top: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; }
-        .form-group input, .form-group select, .form-group textarea { 
-            width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-family: inherit; box-sizing: border-box; 
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tajawal', sans-serif; }
+        body { background-color: #f4f7f6; color: #333; }
+
+        /* القائمة العلوية */
+        header { 
+            background-color: #1a1a1a; color: white; padding: 15px 20px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100;
         }
-        .submit-btn { background: #27ae60; color: white; border: none; padding: 15px; width: 100%; border-radius: 5px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .order-summary { background: #f9f9f9; padding: 10px; border-radius: 5px; margin-bottom: 20px; text-align: center; border: 1px dashed #ccc; }
+        .logo { font-size: 24px; font-weight: 900; text-decoration: none; color: white; }
+        .logo span { color: #e74c3c; }
+        .back-btn { color: #ccc; text-decoration: none; font-weight: bold; transition: 0.3s; }
+        .back-btn:hover { color: white; }
+
+        /* حاوية الدفع */
+        .container { padding: 40px 20px; max-width: 1000px; margin: auto; display: grid; grid-template-columns: 1.5fr 1fr; gap: 40px; }
+        @media (max-width: 768px) { .container { grid-template-columns: 1fr; } }
+
+        .page-title { font-size: 28px; font-weight: 900; margin-bottom: 20px; grid-column: 1 / -1; }
+
+        /* استمارة الدفع */
+        .checkout-form { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.05); }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; }
+        .form-group input, .form-group select, .form-group textarea { 
+            width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; font-size: 16px; 
+            transition: 0.3s;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #1a1a1a; outline: none; }
+
+        .payment-method { background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #ddd; margin-top: 10px; display: flex; align-items: center; gap: 10px; }
+        .payment-method input { width: auto; margin: 0; }
+        .payment-method label { margin: 0; font-weight: bold; color: #1a1a1a; }
+
+        .submit-btn { 
+            background: #27ae60; color: white; border: none; padding: 18px; width: 100%; 
+            border-radius: 8px; font-size: 20px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 20px;
+        }
+        .submit-btn:hover { background: #219653; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3); }
+
+        /* ملخص الطلب */
+        .order-summary { background: #1a1a1a; color: white; padding: 30px; border-radius: 12px; height: fit-content; position: sticky; top: 100px; }
+        .order-summary h2 { font-size: 20px; margin-bottom: 20px; border-bottom: 1px solid #444; padding-bottom: 10px; }
+        .summary-item { display: flex; justify-content: space-between; margin-bottom: 15px; color: #ccc; font-size: 15px; }
+        .summary-total { display: flex; justify-content: space-between; font-size: 22px; font-weight: 900; margin-top: 20px; border-top: 1px solid #444; padding-top: 20px; color: #27ae60; }
     </style>
 </head>
 <body>
+
     <header>
-        <h1>إتمام الطلب</h1>
-        <a href="cart.html" class="back-btn">رجوع للسلة</a>
+        <a href="index.html" class="logo">Grifa<span>Shop</span></a>
+        <a href="cart.html" class="back-btn">← العودة للسلة</a>
     </header>
 
     <div class="container">
-        <div class="order-summary">
-            <h3>الدفع عند الاستلام (COD)</h3>
-            <p>المجموع الكلي: <strong id="checkout-total" style="color: #e74c3c; font-size: 20px;">0</strong> دج</p>
+        <h1 class="page-title">إتمام الطلب 💳</h1>
+
+        <!-- الاستمارة -->
+        <div class="checkout-form">
+            <form id="checkout-form">
+                <div class="form-group">
+                    <label>الاسم واللقب</label>
+                    <input type="text" id="fullname" required placeholder="مثال: محمد بن علي">
+                </div>
+
+                <div class="form-group">
+                    <label>رقم الهاتف</label>
+                    <input type="tel" id="phone" required placeholder="مثال: 0550123456" pattern="[0-9]{10}">
+                </div>
+
+                <div class="form-group">
+                    <label>الولاية</label>
+                    <select id="wilaya" required>
+                        <option value="">اختر الولاية...</option>
+                        <option value="16">الجزائر</option>
+                        <option value="31">وهران</option>
+                        <option value="25">قسنطينة</option>
+                        <option value="19">سطيف</option>
+                        <option value="09">البليدة</option>
+                        <option value="06">بجاية</option>
+                        <!-- تقدر تزيد الباقي من بعد -->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>البلدية / العنوان بالتفصيل</label>
+                    <textarea id="address" rows="3" required placeholder="اسم البلدية والحي..."></textarea>
+                </div>
+
+                <div class="payment-method">
+                    <input type="radio" id="cod" name="payment" value="cod" checked>
+                    <label for="cod">الدفع عند الاستلام (COD) 💵</label>
+                </div>
+
+                <button type="submit" class="submit-btn">تأكيد الطلب ✅</button>
+            </form>
         </div>
 
-        <form id="checkout-form">
-            <div class="form-group">
-                <label>الاسم واللقب</label>
-                <input type="text" id="fullname" required placeholder="مثال: محمد بن علي">
+        <!-- ملخص الطلب -->
+        <div class="order-summary">
+            <h2>ملخص الطلب</h2>
+            <div id="summary-items">
+                <!-- المنتجات راح تطلع هنا -->
             </div>
-
-            <div class="form-group">
-                <label>رقم الهاتف</label>
-                <input type="tel" id="phone" required placeholder="مثال: 0550123456" pattern="[0-9]{10}">
+            <div class="summary-total">
+                <span>المجموع الكلي:</span>
+                <span id="checkout-total">0 دج</span>
             </div>
-
-            <div class="form-group">
-                <label>الولاية</label>
-                <select id="wilaya" required>
-                    <option value="">اختر الولاية...</option>
-                    <option value="16">الجزائر</option>
-                    <option value="31">وهران</option>
-                    <option value="25">قسنطينة</option>
-                    <option value="19">سطيف</option>
-                    <option value="09">البليدة</option>
-                    <option value="06">بجاية</option>
-                    <!-- تقدر تزيد الباقي من بعد -->
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>البلدية / العنوان بالتفصيل</label>
-                <textarea id="address" rows="2" required placeholder="اسم البلدية والحي..."></textarea>
-            </div>
-
-            <button type="submit" class="submit-btn">تأكيد الطلب ✅</button>
-        </form>
+        </div>
     </div>
 
-    <script type="module" src="firebase-config.js"></script>
-<script type="module" src="checkout.js"></script>
+    <script type="module" src="checkout.js"></script>
 </body>
 </html>

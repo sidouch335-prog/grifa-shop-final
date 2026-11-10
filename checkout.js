@@ -4,12 +4,36 @@ import { collection, addDoc } from "https://www.gstatic.com/firebasejs/13.2.0/fi
 let cart = JSON.parse(localStorage.getItem('grifa_cart')) || [];
 let total = 0;
 
-cart.forEach(item => {
-    total += item.price;
-});
+// نعرضو ملخص الطلب في الصفحة
+function renderSummary() {
+    const summaryItems = document.getElementById('summary-items');
+    const totalElement = document.getElementById('checkout-total');
+    
+    summaryItems.innerHTML = '';
+    
+    if (cart.length === 0) {
+        summaryItems.innerHTML = '<p style="color: #ccc;">السلة فارغة</p>';
+        totalElement.innerText = '0 دج';
+        return;
+    }
 
-document.getElementById('checkout-total').innerText = total;
+    cart.forEach(item => {
+        total += item.price * (item.quantity || 1);
+        summaryItems.innerHTML += `
+            <div class="summary-item">
+                <span>${item.name} (x${item.quantity || 1})</span>
+                <span>${item.price * (item.quantity || 1)} دج</span>
+            </div>
+        `;
+    });
 
+    totalElement.innerText = total + ' دج';
+}
+
+// تشغيل الملخص كي تفتح الصفحة
+document.addEventListener('DOMContentLoaded', renderSummary);
+
+// كي يدوس على تأكيد الطلب
 document.getElementById('checkout-form').addEventListener('submit', async function(e) {
     e.preventDefault();
 
@@ -24,22 +48,20 @@ document.getElementById('checkout-form').addEventListener('submit', async functi
     const wilaya = document.getElementById('wilaya').options[document.getElementById('wilaya').selectedIndex].text;
     const address = document.getElementById('address').value;
 
-    // نسجلو الطلب
-    const order = {
-        name: name,
-        phone: phone,
-        wilaya: wilaya,
-        address: address,
-        items: cart,
-        total: total,
-        date: new Date().toLocaleString('ar-DZ')
-    };
-
+    // نسجلو الطلب في السحابة
     try {
-        // نزيدو الطلب في مجموعة "orders" في السحابة
-        await addDoc(collection(db, "orders"), order);
+        await addDoc(collection(db, "orders"), {
+            name: name,
+            phone: phone,
+            wilaya: wilaya,
+            address: address,
+            items: cart,
+            total: total,
+            date: new Date().toLocaleString('ar-DZ'),
+            status: "قيد الانتظار"
+        });
 
-        alert(`شكراً ${name}!\nتم استلام طلبك بنجاح في السحابة.\nالمجموع: ${total} دج\nسنقوم بالاتصال بك على الرقم ${phone} للتأكيد.`);
+        alert(`شكراً ${name}!\nتم استلام طلبك بنجاح.\nالمجموع: ${total} دج\nسنقوم بالاتصال بك على الرقم ${phone} للتأكيد.`);
         
         localStorage.removeItem('grifa_cart'); // نمسحو السلة
         window.location.href = "index.html"; // نرجعوه للرئيسية
