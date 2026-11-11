@@ -1,6 +1,5 @@
 import { db } from './firebase-config.js';
-import { collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
-
+import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
 // --- 1. عرض المنتجات والطلبات ---
 async function loadDashboardData() {
     try {
@@ -42,6 +41,12 @@ async function loadDashboardData() {
             // نعرضو الطلب في الجدول (إذا كان الجدول كاين)
             if (ordersTable) {
                 let itemsList = order.items ? order.items.map(item => `${item.name} (${item.price} دج)`).join(', ') : 'غير محدد';
+                               let statusText = order.status || "قيد الانتظار";
+                let statusColor = "#f39c12"; // أصفر
+                if (statusText === "تم التأكيد") statusColor = "#3498db"; // أزرق
+                if (statusText === "تم الشحن") statusColor = "#9b59b6"; // بنفسجي
+                if (statusText === "تم التوصيل") statusColor = "#27ae60"; // أخضر
+
                 ordersTable.innerHTML += `
                     <tr>
                         <td>${order.name}</td>
@@ -49,7 +54,15 @@ async function loadDashboardData() {
                         <td>${order.wilaya} - ${order.address}</td>
                         <td>${itemsList}</td>
                         <td style="color: #e74c3c; font-weight: bold;">${order.total} دج</td>
-                        <td style="color: #f39c12; font-weight: bold;">${order.status || 'قيد الانتظار'}</td>
+                        <td style="color: ${statusColor}; font-weight: bold;">${statusText}</td>
+                        <td>
+                            <select onchange="updateOrderStatus('${doc.id}', this.value)" style="padding: 5px; border-radius: 5px; border: 1px solid #ccc;">
+                                <option value="قيد الانتظار" ${statusText === 'قيد الانتظار' ? 'selected' : ''}>قيد الانتظار</option>
+                                <option value="تم التأكيد" ${statusText === 'تم التأكيد' ? 'selected' : ''}>تم التأكيد</option>
+                                <option value="تم الشحن" ${statusText === 'تم الشحن' ? 'selected' : ''}>تم الشحن</option>
+                                <option value="تم التوصيل" ${statusText === 'تم التوصيل' ? 'selected' : ''}>تم التوصيل</option>
+                            </select>
+                        </td>
                     </tr>
                 `;
             }
@@ -103,3 +116,17 @@ window.deleteProduct = async function(id) {
 
 // --- تشغيل الدالة كي تفتح الصفحة ---
 document.addEventListener('DOMContentLoaded', loadDashboardData);
+// دالة تحديث حالة الطلب
+window.updateOrderStatus = async function(orderId, newStatus) {
+    try {
+        const orderRef = doc(db, "orders", orderId);
+        await updateDoc(orderRef, {
+            status: newStatus
+        });
+        alert("تم تحديث حالة الطلب بنجاح! ✅");
+        loadDashboardData(); // نعاودو نعرضو الطلبات باش تبان الحالة الجديدة
+    } catch (error) {
+        console.error("خطأ في تحديث الحالة: ", error);
+        alert("ما قدرناش نحدثو الحالة.");
+    }
+};
