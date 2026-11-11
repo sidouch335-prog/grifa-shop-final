@@ -9,7 +9,8 @@ function updateCartCount() {
     if (cartCountElement) cartCountElement.innerText = cart.length;
 }
 
-wwindow.addToCart = function(productName, productPrice, productImage) {
+// هنا صلحنا المشكل (حيدنا W الزايدة)
+window.addToCart = function(productName, productPrice, productImage) {
     let cart = JSON.parse(localStorage.getItem('grifa_cart')) || [];
     
     const existingItem = cart.find(item => item.name === productName);
@@ -32,6 +33,7 @@ wwindow.addToCart = function(productName, productPrice, productImage) {
     document.body.appendChild(toast);
     setTimeout(() => toast.remove(), 2000);
 };
+
 async function displayProducts() {
     const container = document.getElementById('products-container');
     if (!container) return;
