@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الإعدادات - Grifa Shop</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tajawal', sans-serif; }
+        body { background-color: #f4f7f6; color: #333; display: flex; height: 100vh; overflow: hidden; }
+
+        /* القائمة الجانبية */
+        .sidebar { width: 250px; background-color: #1a1a1a; color: white; display: flex; flex-direction: column; }
+        .sidebar-header { padding: 20px; text-align: center; border-bottom: 1px solid #333; }
+        .sidebar-header h2 { font-size: 24px; font-weight: 900; color: #e74c3c; }
+        .sidebar-menu { flex-grow: 1; padding: 20px 0; }
+        .sidebar-menu a { display: block; padding: 15px 20px; color: #ccc; text-decoration: none; font-weight: 700; transition: 0.3s; }
+        .sidebar-menu a:hover, .sidebar-menu a.active { background-color: #333; color: white; border-right: 4px solid #e74c3c; }
+        .sidebar-footer { padding: 20px; border-top: 1px solid #333; text-align: center; }
+        .sidebar-footer a { color: #e74c3c; text-decoration: none; font-weight: bold; }
+
+        /* المحتوى */
+        .main-content { flex-grow: 1; padding: 30px; overflow-y: auto; }
+        .top-bar { margin-bottom: 30px; }
+        .top-bar h1 { font-size: 28px; font-weight: 900; }
+
+        .settings-card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); max-width: 600px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; }
+        .form-group input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; font-size: 16px; }
+        .save-btn { background: #27ae60; color: white; border: none; padding: 15px 30px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .save-btn:hover { background: #219653; }
+    </style>
+</head>
+<body>
+
+    <!-- القائمة الجانبية -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>Grifa Admin</h2>
+        </div>
+        <div class="sidebar-menu">
+            <a href="admin.html">📊 لوحة المعلومات</a>
+            <a href="admin.html">📦 المنتجات</a>
+            <a href="admin.html">🛒 الطلبات</a>
+            <a href="settings.html" class="active">⚙️ الإعدادات</a>
+        </div>
+        <div class="sidebar-footer">
+            <a href="index.html">← العودة للمتجر</a>
+        </div>
+    </div>
+
+    <!-- المحتوى الرئيسي -->
+    <div class="main-content">
+        <div class="top-bar">
+            <h1>إعدادات المتجر</h1>
+        </div>
+
+        <div class="settings-card">
+            <form id="settings-form">
+                <div class="form-group">
+                    <label>اسم المتجر</label>
+                    <input type="text" id="store-name" required placeholder="مثال: Grifa Shop">
+                </div>
+                <div class="form-group">
+                    <label>رقم الهاتف</label>
+                    <input type="tel" id="store-phone" required placeholder="مثال: 0550123456">
+                </div>
+                <div class="form-group">
+                    <label>رابط فيسبوك</label>
+                    <input type="url" id="store-facebook" placeholder="https://facebook.com/...">
+                </div>
+                <div class="form-group">
+                    <label>رابط إنستغرام</label>
+                    <input type="url" id="store-instagram" placeholder="https://instagram.com/...">
+                </div>
+                <button type="submit" class="save-btn">حفظ الإعدادات</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="settings.js"></script>
+</body>
+</html>
