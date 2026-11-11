@@ -100,9 +100,10 @@
                     <label>السعر (دج)</label>
                     <input type="number" id="p-price" required placeholder="مثال: 2500">
                 </div>
-                <div class="form-group">
-                    <label>رابط الصورة (URL)</label>
-                    <input type="url" id="p-image" required placeholder="https://...">
+                                <div class="form-group">
+                    <label>صورة المنتج</label>
+                    <input type="file" id="p-image-file" accept="image/*" required style="padding: 10px; border: 1px solid #ddd; border-radius: 8px; width: 100%;">
+                    <input type="hidden" id="p-image">
                 </div>
                 
                 <!-- خانة النوع اللي زدنا -->
