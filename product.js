@@ -1,3 +1,6 @@
+import { db } from './firebase-config.js';
+import { collection, addDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
+
 let currentProduct = null;
 let selectedColor = null;
 let selectedSize = null;
@@ -37,16 +40,10 @@ document.addEventListener('DOMContentLoaded', () => {
         colorContainer.innerHTML = '';
         sizeContainer.innerHTML = '';
 
-               if (currentProduct.variants && currentProduct.variants.length > 0) {
-            // نجيبو الألوان الفريدة
+        if (currentProduct.variants && currentProduct.variants.length > 0) {
             const colors = [...new Set(currentProduct.variants.map(v => v.color))];
-            // نجيبو المقاسات الفريدة
             const sizes = [...new Set(currentProduct.variants.map(v => v.size))];
 
-            colorContainer.innerHTML = '';
-            sizeContainer.innerHTML = '';
-
-            // نعرضو الألوان
             colors.forEach(color => {
                 const btn = document.createElement('button');
                 btn.className = 'variant-btn';
@@ -55,27 +52,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 colorContainer.appendChild(btn);
             });
 
-            // نعرضو المقاسات مع التحقق من الكمية
             sizes.forEach(size => {
-                // نشوفو واش كاين كمية في هاد المقاس
-                const variantsForSize = currentProduct.variants.filter(v => v.size === size);
-                const totalStock = variantsForSize.reduce((acc, v) => acc + (v.stock || 0), 0);
-
-                if (totalStock > 0) {
-                    const btn = document.createElement('button');
-                    btn.className = 'variant-btn';
-                    btn.innerText = size;
-                    btn.onclick = () => selectSize(btn, size);
-                    sizeContainer.appendChild(btn);
-                }
+                const btn = document.createElement('button');
+                btn.className = 'variant-btn';
+                btn.innerText = size;
+                btn.onclick = () => selectSize(btn, size);
+                sizeContainer.appendChild(btn);
             });
-
-            if (sizeContainer.children.length === 0) {
-                sizeContainer.innerHTML = '<p style="color:#777;">لا توجد مقاسات متوفرة</p>';
-            }
+        } else {
+            colorContainer.innerHTML = '<p style="color:#777;">لا توجد ألوان</p>';
+            sizeContainer.innerHTML = '<p style="color:#777;">لا توجد مقاسات</p>';
         }
 
         document.title = currentProduct.name + ' - Grifa Shop';
+        
+        // نستدعيو دالة التقييمات
+        loadReviews(currentProduct.name);
     } else {
         window.location.href = 'index.html';
     }
@@ -118,3 +110,68 @@ window.addToCartWithVariants = function() {
         window.location.href = 'cart.html'; 
     }, 1000);
 };
+
+// دالة عرض التقييمات
+async function loadReviews(productName) {
+    const list = document.getElementById('reviews-list');
+    if (!list) return;
+
+    try {
+        const q = query(collection(db, "reviews"), where("productName", "==", productName));
+        const querySnapshot = await getDocs(q);
+        
+        list.innerHTML = '';
+        
+        if (querySnapshot.empty) {
+            list.innerHTML = '<p style="color: #777;">لا توجد تقييمات بعد.</p>';
+            return;
+        }
+
+        querySnapshot.forEach((doc) => {
+            const review = doc.data();
+            const stars = '⭐'.repeat(review.rating);
+            list.innerHTML += `
+                <div style="background: white; padding: 10px; border-radius: 5px; margin-bottom: 10px; border: 1px solid #eee;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <strong>${review.name}</strong>
+                        <span style="color: #f39c12;">${stars}</span>
+                    </div>
+                    <p style="font-size: 14px; color: #555;">${review.text}</p>
+                </div>
+            `;
+        });
+    } catch (error) {
+        console.error("خطأ في جلب التقييمات: ", error);
+    }
+}
+
+// استمارة إرسال التقييم
+document.getElementById('review-form')?.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    if (!currentProduct) return;
+
+    const rating = document.getElementById('review-rating').value;
+    const name = document.getElementById('review-name').value;
+    const text = document.getElementById('review-text').value;
+
+    if (!rating || !name || !text) {
+        alert("خاصك تعمر كل الخانات!");
+        return;
+    }
+
+    try {
+        await addDoc(collection(db, "reviews"), {
+            productName: currentProduct.name,
+            rating: parseInt(rating),
+            name: name,
+            text: text,
+            date: new Date().toLocaleString('ar-DZ')
+        });
+        alert("تم إرسال تقييمك! شكراً لك. ⭐");
+        document.getElementById('review-form').reset();
+        loadReviews(currentProduct.name);
+    } catch (error) {
+        console.error("خطأ: ", error);
+        alert("ما قدرناش نرسلو التقييم. تأكد من اتصالك بالأنترنت.");
+    }
+});

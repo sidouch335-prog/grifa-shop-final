@@ -86,6 +86,34 @@
             </div>
 
             <button class="add-to-cart-btn" onclick="addToCartWithVariants()">أضف إلى السلة 🛒</button>
+                        <!-- قسم التقييمات -->
+            <div class="reviews-section" style="margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px;">
+                <h3 style="margin-bottom: 15px;">آراء الزبناء ⭐</h3>
+                
+                <div id="reviews-list" style="margin-bottom: 20px;">
+                    <!-- هنا راح تطلع التقييمات -->
+                    <p style="color: #777;">لا توجد تقييمات بعد.</p>
+                </div>
+
+                <form id="review-form" style="background: #f9f9f9; padding: 15px; border-radius: 8px;">
+                    <h4 style="margin-bottom: 10px;">أضف تقييمك</h4>
+                    <div style="display: flex; gap: 5px; margin-bottom: 10px;">
+                        <select id="review-rating" required style="padding: 8px; border-radius: 5px; border: 1px solid #ddd;">
+                            <option value="">اختر التقييم...</option>
+                            <option value="5">⭐⭐⭐⭐⭐ (5 نجوم)</option>
+                            <option value="4">⭐⭐⭐⭐ (4 نجوم)</option>
+                            <option value="3">⭐⭐⭐ (3 نجوم)</option>
+                            <option value="2">⭐⭐ (2 نجوم)</option>
+                            <option value="1">⭐ (نجمة واحدة)</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <input type="text" id="review-name" placeholder="اسمك" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 5px;">
+                        <textarea id="review-text" placeholder="اكتب تعليقك هنا..." required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; height: 80px;"></textarea>
+                    </div>
+                    <button type="submit" style="background: #1a1a1a; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold;">إرسال التقييم</button>
+                </form>
+            </div>
         </div>
     </div>
 
