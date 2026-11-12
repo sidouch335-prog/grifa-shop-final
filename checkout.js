@@ -1,7 +1,7 @@
+let discount = 0;
 import { doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
 import { db } from './firebase-config.js';
-import { collection, addDoc } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
-
+import { collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
 let cart = JSON.parse(localStorage.getItem('grifa_cart')) || [];
 let total = 0;
 
@@ -149,3 +149,27 @@ document.getElementById('checkout-form').addEventListener('submit', async functi
         alert("حدث خطأ أثناء حفظ الطلب. جرب مرة أخرى.");
     }
 });
+window.applyCoupon = function() {
+    const code = document.getElementById('coupon-code').value.trim().toUpperCase();
+    const message = document.getElementById('coupon-message');
+    const totalElement = document.getElementById('checkout-total');
+
+    // الكوبونات المتوفرة
+    const coupons = {
+        'GRIFA10': 0.10, // 10% تخفيض
+        'WELCOME5': 0.05 // 5% تخفيض
+    };
+
+    if (coupons[code]) {
+        discount = total * coupons[code];
+        const newTotal = total - discount;
+        totalElement.innerText = newTotal + ' دج';
+        message.innerText = `تم تطبيق خصم ${coupons[code] * 100}%!`;
+        message.style.color = '#27ae60';
+    } else {
+        discount = 0;
+        totalElement.innerText = total + ' دج';
+        message.innerText = 'كود الخصم غير صالح.';
+        message.style.color = '#e74c3c';
+    }
+};
