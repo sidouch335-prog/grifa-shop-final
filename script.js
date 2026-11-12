@@ -70,12 +70,22 @@ function createProductCard(product) {
     const card = document.createElement('div'); 
     card.className = 'product-card';
 
+       // كنشوفو واش الكمية كاينة
+    const totalStock = product.hasVariants 
+        ? (product.variants || []).reduce((acc, v) => acc + (v.stock || 0), 0)
+        : (product.stock || 0);
+    
+    const isAvailable = totalStock > 0;
+
     card.innerHTML = `
         <img src="${product.image}" alt="${product.name}" style="cursor:pointer;" data-id="${product.id}">
         <div class="product-info">
             <h3 style="cursor:pointer;" data-id="${product.id}">${product.name}</h3>
             <p class="price">${product.price} دج</p>
-            <button onclick="addToCart('${product.name}', ${product.price}, '${product.image}')">أضف إلى السلة</button>
+            ${isAvailable 
+                ? `<button onclick="addToCart('${product.name}', ${product.price}, '${product.image}')">أضف إلى السلة</button>`
+                : `<button style="background: #ccc; cursor: not-allowed;" disabled>غير متوفر</button>`
+            }
         </div>
     `;
     container.appendChild(card);

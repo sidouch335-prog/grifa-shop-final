@@ -1,3 +1,4 @@
+import { doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
 import { db } from './firebase-config.js';
 import { collection, addDoc } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
 
@@ -79,6 +80,55 @@ document.getElementById('checkout-form').addEventListener('submit', async functi
 
     // نسجلو الطلب في السحابة
     try {
+
+                // ننقصو الكمية من المخزون
+        for (const item of cart) {
+            // نلقاو المنتج الأصلي في السحابة
+            const productQuery = await getDocs(collection(db, "products"));
+            let productDoc = null;
+            
+            productQuery.forEach((doc) => {
+                const p = doc.data();
+                // إذا كان المنتج فيه متغيرات، نلقاو التركيبة المناسبة
+                if (p.hasVariants && item.name.includes('(')) {
+                    // نستخرجو المقاس واللون من الاسم (مثال: "قميص (S - أحمر)")
+                    // ... (هذا الجزء معقد شوية، راح نبسطوه دوكا)
+                } else if (p.name === item.name) {
+                    productDoc = { id: doc.id, data: p };
+                }
+            });
+
+            if (productDoc) {
+                const newStock = (productDoc.data.stock || 0) - (item.quantity || 1);
+                await updateDoc(doc(db, "products", productDoc.id), {
+                    stock: Math.max(0, newStock)
+                });
+            }
+        }
+                // ننقصو الكمية من المخزون
+        for (const item of cart) {
+            // نلقاو المنتج الأصلي في السحابة
+            const productQuery = await getDocs(collection(db, "products"));
+            let productDoc = null;
+            
+            productQuery.forEach((doc) => {
+                const p = doc.data();
+                // إذا كان المنتج فيه متغيرات، نلقاو التركيبة المناسبة
+                if (p.hasVariants && item.name.includes('(')) {
+                    // نستخرجو المقاس واللون من الاسم (مثال: "قميص (S - أحمر)")
+                    // ... (هذا الجزء معقد شوية، راح نبسطوه دوكا)
+                } else if (p.name === item.name) {
+                    productDoc = { id: doc.id, data: p };
+                }
+            });
+
+            if (productDoc) {
+                const newStock = (productDoc.data.stock || 0) - (item.quantity || 1);
+                await updateDoc(doc(db, "products", productDoc.id), {
+                    stock: Math.max(0, newStock)
+                });
+            }
+        }
         await addDoc(collection(db, "orders"), {
             name: name,
             phone: phone,
