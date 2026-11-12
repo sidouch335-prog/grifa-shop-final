@@ -37,11 +37,14 @@ document.addEventListener('DOMContentLoaded', () => {
         colorContainer.innerHTML = '';
         sizeContainer.innerHTML = '';
 
-        if (currentProduct.variants && currentProduct.variants.length > 0) {
+               if (currentProduct.variants && currentProduct.variants.length > 0) {
             // نجيبو الألوان الفريدة
             const colors = [...new Set(currentProduct.variants.map(v => v.color))];
             // نجيبو المقاسات الفريدة
             const sizes = [...new Set(currentProduct.variants.map(v => v.size))];
+
+            colorContainer.innerHTML = '';
+            sizeContainer.innerHTML = '';
 
             // نعرضو الألوان
             colors.forEach(color => {
@@ -52,17 +55,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 colorContainer.appendChild(btn);
             });
 
-            // نعرضو المقاسات
+            // نعرضو المقاسات مع التحقق من الكمية
             sizes.forEach(size => {
-                const btn = document.createElement('button');
-                btn.className = 'variant-btn';
-                btn.innerText = size;
-                btn.onclick = () => selectSize(btn, size);
-                sizeContainer.appendChild(btn);
+                // نشوفو واش كاين كمية في هاد المقاس
+                const variantsForSize = currentProduct.variants.filter(v => v.size === size);
+                const totalStock = variantsForSize.reduce((acc, v) => acc + (v.stock || 0), 0);
+
+                if (totalStock > 0) {
+                    const btn = document.createElement('button');
+                    btn.className = 'variant-btn';
+                    btn.innerText = size;
+                    btn.onclick = () => selectSize(btn, size);
+                    sizeContainer.appendChild(btn);
+                }
             });
-        } else {
-            colorContainer.innerHTML = '<p style="color:#777;">لا توجد ألوان</p>';
-            sizeContainer.innerHTML = '<p style="color:#777;">لا توجد مقاسات</p>';
+
+            if (sizeContainer.children.length === 0) {
+                sizeContainer.innerHTML = '<p style="color:#777;">لا توجد مقاسات متوفرة</p>';
+            }
         }
 
         document.title = currentProduct.name + ' - Grifa Shop';
