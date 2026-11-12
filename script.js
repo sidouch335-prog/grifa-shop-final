@@ -145,3 +145,44 @@ document.addEventListener('DOMContentLoaded', () => {
     displayProducts();
     loadStoreSettings();
 });
+// دالة جلب وعرض التصنيفات من السحابة
+async function loadCategories() {
+    const container = document.getElementById('categories-container');
+    if (!container) return;
+
+    try {
+        // نزيدو زر "الكل" كأول حاجة
+        container.innerHTML = '<button class="category-btn active" onclick="filterProducts(\'all\')">الكل</button>';
+
+        const querySnapshot = await getDocs(collection(db, "categories"));
+        querySnapshot.forEach((doc) => {
+            const cat = doc.data();
+            container.innerHTML += `
+                <button class="category-btn" onclick="filterProducts('${cat.name}')">${cat.name}</button>
+            `;
+        });
+    } catch (error) {
+        console.error("خطأ في جلب التصنيفات: ", error);
+    }
+}
+window.filterProducts = function(category) {
+    const container = document.getElementById('products-container');
+    container.innerHTML = ''; // نمسحو المنتجات القديمة
+
+    // نبدلو ستايل الأزرار (اللي ندوزو عليه كيولي كحل)
+    const buttons = document.querySelectorAll('.category-btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    
+    // نلقاو الزر اللي كليكا عليه ونفعلوه
+    const clickedBtn = Array.from(buttons).find(btn => btn.innerText === category || (category === 'all' && btn.innerText === 'الكل'));
+    if (clickedBtn) clickedBtn.classList.add('active');
+
+    // إذا اختار "الكل"، نعرضو كلشي، وإلا نعرضو غير اللي يشبه للتصنيف
+    const filtered = category === 'all' ? allProducts : allProducts.filter(p => p.category === category);
+    
+    if (filtered.length === 0) {
+        container.innerHTML = '<p class="loading">لا توجد منتجات في هذا التصنيف.</p>';
+    } else {
+        filtered.forEach(product => createProductCard(product));
+    }
+};
