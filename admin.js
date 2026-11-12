@@ -1,6 +1,20 @@
+console.log("admin.js تحميل بنجاح");
 import { db } from './firebase-config.js';
 import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
+window.toggleVariants = function() {
+    console.log("دالة toggleVariants تخدمت!");
+    const hasVariants = document.getElementById('has-variants').value;
+    const singleStock = document.getElementById('single-stock-group');
+    const variantsContainer = document.getElementById('variants-container');
 
+    if (hasVariants === 'yes') {
+        singleStock.style.display = 'none';
+        variantsContainer.style.display = 'block';
+    } else {
+        singleStock.style.display = 'block';
+        variantsContainer.style.display = 'none';
+    }
+};
 const form = document.getElementById('add-product-form');
 const productList = document.getElementById('product-list');
 const ordersContainer = document.getElementById('orders-container');
@@ -20,9 +34,11 @@ async function renderAdminProducts() {
         querySnapshot.forEach((document) => {
             const p = document.data();
             const id = document.id;
+            const stock = p.hasVariants ? p.variants.reduce((acc, v) => acc + v.stock, 0) : (p.stock || 0);
+            
             productList.innerHTML += `
                 <div class="admin-product" style="display: flex; justify-content: space-between; align-items: center; background: #f9f9f9; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 1px solid #eee;">
-                    <span>${p.name} - ${p.price} دج</span>
+                    <span>${p.name} - ${p.price} دج (المخزون: ${stock})</span>
                     <button onclick="deleteProduct('${id}')" style="background: #e74c3c; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">حذف</button>
                 </div>
             `;
@@ -44,7 +60,7 @@ window.deleteProduct = async function(id) {
     }
 }
 
-// --- 3. إضافة منتج جديد (مع رفع الصورة لـ Cloudinary) ---
+// --- 3. إضافة منتج جديد ---
 form.addEventListener('submit', async function(e) {
     e.preventDefault();
     
@@ -53,13 +69,13 @@ form.addEventListener('submit', async function(e) {
     const type = document.getElementById('p-type').value;
     const fileInput = document.getElementById('p-image-file');
     const file = fileInput.files[0];
+    const hasVariants = document.getElementById('has-variants').value === 'yes';
 
     if (!file) {
         alert("خاصك تختار صورة للمنتج!");
         return;
     }
 
-    // نعطلو الزر باش ما يديرش كليكات بزاف
     const submitBtn = form.querySelector('button[type="submit"]');
     submitBtn.innerText = "جاري رفع الصورة...";
     submitBtn.disabled = true;
@@ -68,21 +84,43 @@ form.addEventListener('submit', async function(e) {
         // رفع الصورة لـ Cloudinary
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('upload_preset', 'grifa_upload'); // Preset Name اللي درتي
+        formData.append('upload_preset', 'grifa_upload'); 
 
         const response = await fetch('https://api.cloudinary.com/v1_1/vbw7ttog/image/upload', {
             method: 'POST',
             body: formData
         });
         const data = await response.json();
-        const imageUrl = data.secure_url; // رابط الصورة
+        const imageUrl = data.secure_url;
 
-        // تسجيل المنتج في Firestore
+        // تجميع المتغيرات
+        let variants = [];
+        let totalStock = 0;
+        
+        if (hasVariants) {
+            const stockInputs = document.querySelectorAll('.variant-stock-input');
+            stockInputs.forEach(input => {
+                const color = input.getAttribute('data-color');
+                const size = input.getAttribute('data-size');
+                const stock = parseInt(input.value) || 0;
+                if (stock > 0) {
+                    variants.push({ color, size, stock });
+                    totalStock += stock;
+                }
+            });
+        } else {
+            totalStock = parseInt(document.getElementById('p-stock').value) || 0;
+        }
+
+        // تسجيل المنتج
         await addDoc(collection(db, "products"), {
             name: name,
             price: price,
             type: type,
             image: imageUrl,
+            hasVariants: hasVariants,
+            stock: hasVariants ? 0 : totalStock,
+            variants: variants,
             createdAt: new Date()
         });
 
@@ -98,7 +136,7 @@ form.addEventListener('submit', async function(e) {
     }
 });
 
-// --- 4. عرض الطلبات من السحابة ---
+// --- 4. عرض الطلبات ---
 async function renderAdminOrders() {
     if (!ordersContainer) return;
     ordersContainer.innerHTML = '<h3>الطلبات الواردة:</h3><p>جاري التحميل...</p>';
@@ -146,19 +184,50 @@ async function renderAdminOrders() {
     }
 }
 
-// --- 5. دالة تحديث حالة الطلب ---
+// --- 5. تحديث حالة الطلب ---
 window.updateOrderStatus = async function(orderId, newStatus) {
     try {
         const orderRef = doc(db, "orders", orderId);
-        await updateDoc(orderRef, {
-            status: newStatus
-        });
+        await updateDoc(orderRef, { status: newStatus });
         alert("تم تحديث حالة الطلب بنجاح! ✅");
         renderAdminOrders();
     } catch (error) {
         console.error("خطأ في تحديث الحالة: ", error);
         alert("ما قدرناش نحدثو الحالة.");
     }
+};
+
+// --- 6. دالة اختيار المتغيرات (اللي زدناها) ---
+window.toggleSelection = function(button, type, value) {
+    button.classList.toggle('selected');
+};
+
+window.generateVariants = function() {
+    const sizeButtons = document.querySelectorAll('.variant-select-btn[onclick*="size"]');
+    const colorButtons = document.querySelectorAll('.variant-select-btn[onclick*="color"]');
+    
+    const selectedSizes = Array.from(sizeButtons).filter(b => b.classList.contains('selected')).map(b => b.innerText);
+    const selectedColors = Array.from(colorButtons).filter(b => b.classList.contains('selected')).map(b => b.innerText);
+
+    if (selectedSizes.length === 0 || selectedColors.length === 0) {
+        alert("خاصك تختار على الأقل مقاس واحد ولون واحد!");
+        return;
+    }
+
+    const container = document.getElementById('generated-variants-list');
+    container.innerHTML = '';
+
+    selectedColors.forEach(color => {
+        selectedSizes.forEach(size => {
+            const row = document.createElement('div');
+            row.style.cssText = 'display: flex; align-items: center; gap: 10px; background: #f9f9f9; padding: 10px; border-radius: 5px;';
+            row.innerHTML = `
+                <span style="flex: 1; font-weight: bold;">${color} - ${size}</span>
+                <input type="number" class="variant-stock-input" data-color="${color}" data-size="${size}" placeholder="الكمية" min="0" value="0" style="width: 100px; padding: 5px; border: 1px solid #ccc; border-radius: 5px;">
+            `;
+            container.appendChild(row);
+        });
+    });
 };
 
 // --- تشغيل الدوال كي تفتح الصفحة ---

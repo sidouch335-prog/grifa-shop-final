@@ -41,6 +41,10 @@
         .submit-btn { background: #1a1a1a; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
         .submit-btn:hover { background: #e74c3c; }
 
+        /* أزرار المتغيرات */
+        .variant-select-btn { padding: 8px 15px; border: 2px solid #ddd; background: white; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .variant-select-btn.selected { background: #1a1a1a; color: white; border-color: #1a1a1a; }
+
         /* جدول المنتجات والطلبات */
         .table-container { background: white; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); overflow: hidden; margin-bottom: 40px; }
         table { width: 100%; border-collapse: collapse; }
@@ -60,7 +64,8 @@
             <a href="#" class="active">📊 لوحة المعلومات</a>
             <a href="#">📦 المنتجات</a>
             <a href="#">🛒 الطلبات</a>
-            <a href="settings.html">⚙️ الإعدادات</a>        </div>
+            <a href="settings.html">⚙️ الإعدادات</a>
+        </div>
         <div class="sidebar-footer">
             <a href="index.html">← العودة للمتجر</a>
         </div>
@@ -100,13 +105,12 @@
                     <label>السعر (دج)</label>
                     <input type="number" id="p-price" required placeholder="مثال: 2500">
                 </div>
-                                <div class="form-group">
+                <div class="form-group">
                     <label>صورة المنتج</label>
                     <input type="file" id="p-image-file" accept="image/*" required style="padding: 10px; border: 1px solid #ddd; border-radius: 8px; width: 100%;">
                     <input type="hidden" id="p-image">
                 </div>
-                
-                <!-- خانة النوع اللي زدنا -->
+
                 <div class="form-group">
                     <label>نوع المنتج</label>
                     <select id="p-type" required>
@@ -117,7 +121,57 @@
                     </select>
                 </div>
 
-                <!-- الزر في بلاصتو الصحيحة في الأخير -->
+                <div class="form-group">
+                    <label>واش المنتج فيه مقاسات وألوان؟</label>
+<select id="has-variants" onchange="toggleVariants(); console.log('تم تغيير الاختيار');">                        <option value="no">لا، منتج عادي (مقاس واحد)</option>
+                        <option value="yes">نعم، فيه مقاسات وألوان</option>
+                    </select>
+                </div>
+
+                <!-- خانة الكمية العادية -->
+                <div class="form-group" id="single-stock-group">
+                    <label>الكمية المتوفرة</label>
+                    <input type="number" id="p-stock" placeholder="مثال: 10" min="0" value="10">
+                </div>
+
+                <!-- حاوية المتغيرات -->
+                <div id="variants-container" style="display: none; border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                    <h3 style="margin-bottom: 10px; font-size: 16px;">المتغيرات (اختر المتوفر)</h3>
+                    
+                    <div class="form-group">
+                        <label>المقاسات المتوفرة</label>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button type="button" class="variant-select-btn" onclick="toggleSelection(this, 'size', 'S')">S</button>
+                            <button type="button" class="variant-select-btn" onclick="toggleSelection(this, 'size', 'M')">M</button>
+                            <button type="button" class="variant-select-btn" onclick="toggleSelection(this, 'size', 'L')">L</button>
+                            <button type="button" class="variant-select-btn" onclick="toggleSelection(this, 'size', 'XL')">XL</button>
+                            <button type="button" class="variant-select-btn" onclick="toggleSelection(this, 'size', 'XXL')">XXL</button>
+                            <button type="button" class="variant-select-btn" onclick="toggleSelection(this, 'size', '38')">38</button>
+                            <button type="button" class="variant-select-btn" onclick="toggleSelection(this, 'size', '40')">40</button>
+                            <button type="button" class="variant-select-btn" onclick="toggleSelection(this, 'size', '42')">42</button>
+                            <button type="button" class="variant-select-btn" onclick="toggleSelection(this, 'size', '44')">44</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>الألوان المتوفرة</label>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button type="button" class="variant-select-btn" onclick="toggleSelection(this, 'color', 'أحمر')">أحمر</button>
+                            <button type="button" class="variant-select-btn" onclick="toggleSelection(this, 'color', 'أزرق')">أزرق</button>
+                            <button type="button" class="variant-select-btn" onclick="toggleSelection(this, 'color', 'أسود')">أسود</button>
+                            <button type="button" class="variant-select-btn" onclick="toggleSelection(this, 'color', 'أبيض')">أبيض</button>
+                            <button type="button" class="variant-select-btn" onclick="toggleSelection(this, 'color', 'رمادي')">رمادي</button>
+                            <button type="button" class="variant-select-btn" onclick="toggleSelection(this, 'color', 'بني')">بني</button>
+                        </div>
+                    </div>
+
+                    <button type="button" onclick="generateVariants()" style="background: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-bottom: 15px;">توليد التركيبات</button>
+                    
+                    <div id="generated-variants-list" style="display: grid; gap: 10px;">
+                        <!-- هنا راح تطلع التركيبات -->
+                    </div>
+                </div>
+
                 <button type="submit" class="submit-btn">إضافة المنتج للمتجر</button>
             </form>
         </div>
@@ -151,7 +205,7 @@
                         <th>المنتجات</th>
                         <th>المجموع</th>
                         <th>الحالة</th>
-                       <th>تغيير الحالة</th>
+                        <th>تغيير الحالة</th>
                     </tr>
                 </thead>
                 <tbody>
