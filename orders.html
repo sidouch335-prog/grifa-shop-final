@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الطلبات - Grifa Shop</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* نفس الهوية البصرية */
+        :root {
+            --primary: #6B46C1;
+            --primary-light: #9F7AEA;
+            --primary-gradient: linear-gradient(135deg, #6B46C1 0%, #9F7AEA 100%);
+            --bg-color: #F3F4F6;
+            --white: #FFFFFF;
+            --text-dark: #1F2937;
+            --text-light: #6B7280;
+            --border-color: #E5E7EB;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-dark); display: flex; height: 100vh; overflow: hidden; }
+
+        /* القائمة الجانبية */
+        .sidebar {
+            width: 260px; background-color: var(--white); border-left: 1px solid var(--border-color);
+            display: flex; flex-direction: column; transition: all 0.3s ease; z-index: 100;
+        }
+        .sidebar-header { padding: 24px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border-color); }
+        .sidebar-header h2 { font-size: 22px; font-weight: 900; color: var(--primary); }
+        .sidebar-menu { flex-grow: 1; padding: 20px 10px; overflow-y: auto; }
+        .menu-item {
+            display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+            color: var(--text-light); text-decoration: none; font-weight: 600;
+            border-radius: 10px; margin-bottom: 5px; transition: all 0.2s;
+        }
+        .menu-item:hover, .menu-item.active { background-color: #F3E8FF; color: var(--primary); }
+        .menu-item i { font-size: 18px; width: 24px; text-align: center; }
+        .sidebar-footer { padding: 20px; border-top: 1px solid var(--border-color); }
+
+        /* المحتوى الرئيسي */
+        .main-content { flex-grow: 1; display: flex; flex-direction: column; overflow-y: auto; }
+        .top-bar {
+            background-color: var(--white); padding: 15px 30px; display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color);
+            position: sticky; top: 0; z-index: 50;
+        }
+        .top-bar h1 { font-size: 20px; font-weight: 700; }
+        .dashboard-container { padding: 30px; display: flex; flex-direction: column; gap: 30px; }
+
+        /* الجداول */
+        .table-container { background: var(--white); border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 15px; text-align: right; border-bottom: 1px solid var(--border-color); }
+        th { background: #F9FAFB; color: var(--text-light); font-weight: 600; }
+        td { font-size: 14px; }
+        
+        /* حالة الطلب */
+        .status-badge { padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        .status-pending { background: #FEF3C7; color: #D97706; }
+        .status-confirmed { background: #DBEAFE; color: #2563EB; }
+        .status-shipped { background: #F3E8FF; color: #6B46C1; }
+        .status-delivered { background: #D1FAE5; color: #059669; }
+        
+        .action-select { padding: 8px; border-radius: 8px; border: 1px solid var(--border-color); font-family: inherit; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <!-- القائمة الجانبية -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2>Grifa<span style="color: var(--text-dark)">Shop</span></h2>
+        </div>
+        <div class="sidebar-menu">
+            <a href="admin.html" class="menu-item"><i class="fas fa-home"></i> الرئيسية</a>
+            <a href="products.html" class="menu-item"><i class="fas fa-box"></i> المنتجات</a>
+            <a href="orders.html" class="menu-item active"><i class="fas fa-shopping-cart"></i> الطلبات</a>
+            <a href="settings.html" class="menu-item"><i class="fas fa-cog"></i> الإعدادات</a>
+        </div>
+        <div class="sidebar-footer">
+            <a href="index.html" class="menu-item" style="justify-content: center;"><i class="fas fa-arrow-left"></i> العودة للمتجر</a>
+        </div>
+    </aside>
+
+    <!-- المحتوى الرئيسي -->
+    <main class="main-content">
+        <header class="top-bar">
+            <h1>إدارة الطلبات</h1>
+        </header>
+
+        <div class="dashboard-container">
+            <div class="table-container">
+                <table id="orders-table">
+                    <thead>
+                        <tr>
+                            <th>العميل</th>
+                            <th>الهاتف</th>
+                            <th>العنوان</th>
+                            <th>المنتجات</th>
+                            <th>المجموع</th>
+                            <th>الحالة</th>
+                            <th>تغيير الحالة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td colspan="7" style="text-align: center;">جاري تحميل الطلبات...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script type="module" src="firebase-config.js"></script>
+    <script type="module" src="orders.js"></script>
+</body>
+</html>
