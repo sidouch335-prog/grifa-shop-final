@@ -44,6 +44,7 @@ form.addEventListener('submit', async function(e) {
     const type = document.getElementById('p-type').value;
     const file = document.getElementById('p-image-file').files[0];
     const hasVariants = document.getElementById('has-variants').value === 'yes';
+    const category = document.getElementById('p-category').value;
 
     if (!file) { alert("خاصك تختار صورة!"); return; }
 
@@ -73,9 +74,11 @@ form.addEventListener('submit', async function(e) {
             totalStock = parseInt(document.getElementById('p-stock').value) || 0;
         }
 
-        await addDoc(collection(db, "products"), {
+                await addDoc(collection(db, "products"), {
             name, price, type, image: imageUrl, hasVariants,
-            stock: hasVariants ? 0 : totalStock, variants, createdAt: new Date()
+            stock: hasVariants ? 0 : totalStock, variants,
+            category: category, // هنا زدنا التصنيف
+            createdAt: new Date()
         });
 
         alert("تمت الإضافة! ☁️");
@@ -136,4 +139,19 @@ window.generateVariants = function() {
     });
 };
 
-document.addEventListener('DOMContentLoaded', renderAdminProducts);
+document.addEventListener('DOMContentLoaded', () => {
+    renderAdminProducts();
+    loadCategories();
+});async function loadCategories() {
+    const select = document.getElementById('p-category');
+    try {
+        const querySnapshot = await getDocs(collection(db, "categories"));
+        select.innerHTML = '<option value="">اختر التصنيف...</option>';
+        querySnapshot.forEach((doc) => {
+            const cat = doc.data();
+            select.innerHTML += `<option value="${cat.name}">${cat.name}</option>`;
+        });
+    } catch (error) {
+        console.error("خطأ في جلب التصنيفات: ", error);
+    }
+}
