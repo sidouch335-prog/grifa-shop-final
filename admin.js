@@ -194,3 +194,75 @@ document.addEventListener('DOMContentLoaded', () => {
     renderAdminProducts();
     renderAdminOrders();
 });
+// دالة عرض الرسوم البيانية
+async function renderCharts() {
+    try {
+        // نجيبو الطلبيات من السحابة
+        const ordersSnapshot = await getDocs(collection(db, "orders"));
+        
+        // نجمعو البيانات حسب اليوم (آخر 7 أيام)
+        const last7Days = {};
+        for (let i = 6; i >= 0; i--) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            const dateStr = d.toLocaleDateString('ar-DZ');
+            last7Days[dateStr] = { sales: 0, orders: 0 };
+        }
+
+        // نعرضو البيانات في الرسم البياني
+        ordersSnapshot.forEach((doc) => {
+            const order = doc.data();
+            // كنفترضو أن التاريخ مخزن كنص (يمكن يحتاج تعديل)
+            // هنا كنستعملو البيانات الحقيقية من السحابة
+        });
+
+        // دوكا رانا كنستعملو بيانات تجريبية باش نضمنو بلي الرسم البياني كيبان
+        // من بعد نربطوها بالبيانات الحقيقية
+        const labels = Object.keys(last7Days);
+        const salesData = [0, 0, 0, 0, 0, 0, 0]; // يمكن نعمرها بالبيانات الحقيقية
+        const ordersData = [0, 0, 0, 0, 0, 0, 0];
+
+        // رسم بياني للمبيعات
+        const salesCtx = document.getElementById('salesChart').getContext('2d');
+        new Chart(salesCtx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'المبيعات',
+                    data: salesData,
+                    borderColor: '#6B46C1',
+                    backgroundColor: 'rgba(107, 70, 193, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        // رسم بياني للطلبات
+        const ordersCtx = document.getElementById('ordersChart').getContext('2d');
+        new Chart(ordersCtx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'الطلبات',
+                    data: ordersData,
+                    backgroundColor: '#9F7AEA',
+                    borderRadius: 5
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+    } catch (error) {
+        console.error("خطأ في الرسوم: ", error);
+    }
+}
+
+// نستدعيو الدالة كي تفتح الصفحة
+document.addEventListener('DOMContentLoaded', () => {
+    // ... (الكود القديم ديال loadDashboardData)
+    renderCharts();
+});

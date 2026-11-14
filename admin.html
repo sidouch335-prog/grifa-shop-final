@@ -110,7 +110,12 @@
         th { background: #F9FAFB; color: var(--text-light); font-weight: 600; }
         td { font-size: 14px; }
         .delete-btn { background: var(--danger); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
+                .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
+        .chart-card { background: var(--white); padding: 20px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+        .chart-card h3 { font-size: 16px; margin-bottom: 15px; }
+        .chart-container { position: relative; height: 250px; width: 100%; }
     </style>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
@@ -171,6 +176,17 @@
                         <div class="stat-icon"><i class="fas fa-box"></i></div>
                     </div>
                     <div class="stat-value" id="total-products">0</div>
+                                <!-- الرسوم البيانية -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3>المبيعات (آخر 7 أيام)</h3>
+                    <div class="chart-container"><canvas id="salesChart"></canvas></div>
+                </div>
+                <div class="chart-card">
+                    <h3>تطور الطلبات</h3>
+                    <div class="chart-container"><canvas id="ordersChart"></canvas></div>
+                </div>
+            </div>
                 </div>
             </div>
 
