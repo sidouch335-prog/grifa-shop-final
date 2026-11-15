@@ -105,7 +105,7 @@ document.getElementById('checkout-form').addEventListener('submit', async functi
             address: address,
             items: cart,
             total: finalTotal,
-            date: new Date().toISOString().split('T')[0], // التاريخ بصيغة YYYY-MM-DD            status: "قيد الانتظار"
+            date: new Date().toISOString().split('T')[0], // YYYY-MM-DD
         });
 
         // ننقصو الكمية من المخزون
