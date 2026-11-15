@@ -4,11 +4,9 @@ import { collection, getDocs } from "https://www.gstatic.com/firebasejs/13.2.0/f
 // --- 1. عرض الإحصائيات الأساسية ---
 async function loadDashboardData() {
     try {
-        // جلب المنتجات
         const productsSnapshot = await getDocs(collection(db, "products"));
         document.getElementById('total-products').innerText = productsSnapshot.size;
 
-        // جلب الطلبات
         const ordersSnapshot = await getDocs(collection(db, "orders"));
         let totalSales = 0;
         
@@ -25,34 +23,13 @@ async function loadDashboardData() {
     }
 }
 
-// --- 2. عرض الرسوم البيانية ---
+// --- 2. عرض الرسوم البيانية (بالبيانات التجريبية) ---
 async function renderCharts() {
     try {
-        const ordersSnapshot = await getDocs(collection(db, "orders"));
-        
-        // نجمعو المبيعات والطلبات حسب اليوم (آخر 7 أيام)
-        const last7Days = {};
-        for (let i = 6; i >= 0; i--) {
-            const d = new Date();
-            d.setDate(d.getDate() - i);
-            const dateStr = d.toLocaleDateString('ar-DZ');
-            last7Days[dateStr] = { sales: 0, orders: 0 };
-        }
-
-        ordersSnapshot.forEach((doc) => {
-            const order = doc.data();
-            if (order.date) {
-                const datePart = order.date.split(',')[0].trim();
-                if (last7Days[datePart]) {
-                    last7Days[datePart].sales += order.total || 0;
-                    last7Days[datePart].orders += 1;
-                }
-            }
-        });
-
-        const labels = Object.keys(last7Days);
-        const salesData = Object.values(last7Days).map(d => d.sales);
-        const ordersData = Object.values(last7Days).map(d => d.orders);
+        // ⚠️ بيانات تجريبية باش نتأكدو بلي الرسم البياني خدام
+        const labels = ['2026-11-09', '2026-11-10', '2026-11-11', '2026-11-12', '2026-11-13', '2026-11-14', '2026-11-15'];
+        const salesData = [0, 5000, 12000, 8000, 15000, 10000, 175266];
+        const ordersData = [0, 1, 3, 2, 4, 2, 5];
 
         // رسم بياني للمبيعات
         const salesCtx = document.getElementById('salesChart').getContext('2d');
@@ -61,7 +38,7 @@ async function renderCharts() {
             data: {
                 labels: labels,
                 datasets: [{
-                    label: 'المبيعات',
+                    label: 'المبيعات (دج)',
                     data: salesData,
                     borderColor: '#6B46C1',
                     backgroundColor: 'rgba(107, 70, 193, 0.1)',
