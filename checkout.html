@@ -4,178 +4,277 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>إتمام الطلب - Grifa Shop</title>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary: #1a1a1a; /* داكن فخم */
+            --accent: #e63946; /* لون الهوية */
+            --bg: #f8f9fa;
+            --white: #ffffff;
+            --text: #333333;
+            --text-light: #777777;
+            --border: #eaeaea;
+            --radius: 16px;
+            --shadow: 0 4px 20px rgba(0,0,0,0.03);
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tajawal', sans-serif; }
-        body { background-color: #f4f7f6; color: #333; }
+        body { background-color: var(--bg); color: var(--text); }
 
-        /* القائمة العلوية */
-        header { 
-            background-color: #1a1a1a; color: white; padding: 15px 20px; 
-            display: flex; justify-content: space-between; align-items: center; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100;
+        /* الهيدر */
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        .logo { font-size: 24px; font-weight: 900; text-decoration: none; color: white; }
-        .logo span { color: #e74c3c; }
-        .back-btn { color: #ccc; text-decoration: none; font-weight: bold; transition: 0.3s; }
-        .back-btn:hover { color: white; }
+        .logo { font-size: 24px; font-weight: 800; color: white; text-decoration: none; }
+        .logo span { color: var(--accent); }
+        .back-link { color: #d1d5db; text-decoration: none; font-size: 15px; font-weight: 500; }
+        .back-link:hover { color: white; }
 
-        /* حاوية الدفع */
-        .container { padding: 40px 20px; max-width: 1000px; margin: auto; display: grid; grid-template-columns: 1.5fr 1fr; gap: 40px; }
-        @media (max-width: 768px) { .container { grid-template-columns: 1fr; } }
+        /* الحاوية */
+        .container {
+            max-width: 1150px;
+            margin: 40px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 1.6fr 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+        @media (max-width: 850px) {
+            .container { grid-template-columns: 1fr; gap: 30px; }
+        }
 
-        .page-title { font-size: 28px; font-weight: 900; margin-bottom: 20px; grid-column: 1 / -1; }
+        .page-title { font-size: 2rem; font-weight: 800; margin-bottom: 30px; color: var(--primary); }
 
-        /* استمارة الدفع */
-        .checkout-form { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.05); }
+        /* الاستمارة */
+        .checkout-form {
+            background-color: var(--white);
+            padding: 32px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+        
+        .form-section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+            color: var(--primary);
+        }
+
         .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; }
-        .form-group input, .form-group select, .form-group textarea { 
-            width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; font-size: 16px; 
-            transition: 0.3s;
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; color: var(--text); }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 14px; border: 1px solid var(--border); border-radius: 10px; font-family: inherit; font-size: 15px; background: #fafafa; transition: 0.2s;
         }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #1a1a1a; outline: none; }
-
-        .payment-method { background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #ddd; margin-top: 10px; display: flex; align-items: center; gap: 10px; }
-        .payment-method input { width: auto; margin: 0; }
-        .payment-method label { margin: 0; font-weight: bold; color: #1a1a1a; }
-
-        .submit-btn { 
-            background: #27ae60; color: white; border: none; padding: 18px; width: 100%; 
-            border-radius: 8px; font-size: 20px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 20px;
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none; border-color: var(--accent); background: var(--white);
         }
-        .submit-btn:hover { background: #219653; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3); }
+
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 500px) { .row { grid-template-columns: 1fr; } }
+
+        .payment-method {
+            display: flex; align-items: center; gap: 12px; padding: 16px; background: #fff; border-radius: 10px; border: 2px solid var(--accent); margin-bottom: 24px;
+        }
+        .payment-method input { width: 20px; height: 20px; accent-color: var(--accent); }
+        .payment-method label { margin: 0; font-weight: 700; font-size: 16px; color: var(--primary); }
+
+        .submit-btn {
+            background-color: var(--accent); color: white; border: none; padding: 18px; width: 100%;
+            border-radius: 10px; font-size: 18px; font-weight: 800; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 15px rgba(230, 57, 70, 0.2);
+        }
+        .submit-btn:hover { background-color: #c1121f; transform: translateY(-2px); }
 
         /* ملخص الطلب */
-        .order-summary { background: #1a1a1a; color: white; padding: 30px; border-radius: 12px; height: fit-content; position: sticky; top: 100px; }
-        .order-summary h2 { font-size: 20px; margin-bottom: 20px; border-bottom: 1px solid #444; padding-bottom: 10px; }
-        .summary-item { display: flex; justify-content: space-between; margin-bottom: 15px; color: #ccc; font-size: 15px; }
-        .summary-total { display: flex; justify-content: space-between; font-size: 22px; font-weight: 900; margin-top: 20px; border-top: 1px solid #444; padding-top: 20px; color: #27ae60; }
+        .order-summary {
+            background-color: var(--white);
+            padding: 30px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 30px;
+        }
+        .order-summary h2 { font-size: 1.3rem; font-weight: 800; margin-bottom: 20px; color: var(--primary); }
+        
+        .summary-item { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; color: var(--text); }
+        .summary-item span:last-child { font-weight: 700; }
+
+        .divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+        .summary-row { display: flex; justify-content: space-between; font-size: 15px; color: var(--text-light); margin-bottom: 12px; }
+        .summary-row.total { font-size: 1.4rem; font-weight: 800; color: var(--primary); margin-top: 10px; }
+        .summary-row.total span:last-child { color: var(--accent); }
+
+        .trust-points { margin-top: 25px; padding-top: 20px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 12px; font-size: 13px; color: var(--text-light); list-style: none; }
+        .trust-points li { display: flex; align-items: center; gap: 10px; }
+        .trust-points li::before { content: '✓'; color: #10B981; font-weight: 900; font-size: 16px; }
+                .submit-btn:active {
+            transform: scale(0.98);
+        }
+        .submit-btn:disabled {
+            background-color: #fca5a5;
+            cursor: not-allowed;
+            transform: none;
+        }
     </style>
 </head>
 <body>
 
+    <!-- الهيدر -->
     <header>
+        <a href="cart.html" class="back-link">← العودة للسلة</a>
         <a href="index.html" class="logo">Grifa<span>Shop</span></a>
-        <a href="cart.html" class="back-btn">← العودة للسلة</a>
     </header>
 
     <div class="container">
-        <h1 class="page-title">إتمام الطلب 💳</h1>
-
         <!-- الاستمارة -->
         <div class="checkout-form">
+            <h1 class="page-title">إتمام الطلب</h1>
+            
             <form id="checkout-form">
+                <div class="form-section-title">معلومات التوصيل</div>
+
                 <div class="form-group">
                     <label>الاسم واللقب</label>
-                    <input type="text" id="fullname" required placeholder="مثال: محمد بن علي">
+                    <input type="text" id="fullname" required placeholder="الاسم الكامل">
                 </div>
 
-                <div class="form-group">
-                    <label>رقم الهاتف</label>
-                    <input type="tel" id="phone" required placeholder="مثال: 0550123456" pattern="[0-9]{10}">
-                </div>
-
-                <div class="form-group">
-                    <label>الولاية</label>
-                                        <select id="wilaya" required>
+                <div class="row">
+                    <div class="form-group">
+                        <label>رقم الهاتف</label>
+                        <input type="tel" id="phone" required placeholder="0550123456" pattern="0[5-7][0-9]{8}">
+                        <small id="phone-error" style="color: var(--accent); display: none;">رقم غير صحيح (10 أرقام يبدأ بـ 05/06/07)</small>
+                    </div>
+                    <div class="form-group">
+                        <label>الولاية</label>
+                                            <select id="wilaya" required>
                         <option value="">اختر الولاية...</option>
-                        <option value="01 - أدرار">01 - أدرار</option>
-                        <option value="02 - الشلف">02 - الشلف</option>
-                        <option value="03 - الأغواط">03 - الأغواط</option>
-                        <option value="04 - أم البواقي">04 - أم البواقي</option>
-                        <option value="05 - باتنة">05 - باتنة</option>
-                        <option value="06 - بجاية">06 - بجاية</option>
-                        <option value="07 - بسكرة">07 - بسكرة</option>
-                        <option value="08 - بشار">08 - بشار</option>
-                        <option value="09 - البليدة">09 - البليدة</option>
-                        <option value="10 - البويرة">10 - البويرة</option>
-                        <option value="11 - تمنراست">11 - تمنراست</option>
-                        <option value="12 - تبسة">12 - تبسة</option>
-                        <option value="13 - تلمسان">13 - تلمسان</option>
-                        <option value="14 - تيارت">14 - تيارت</option>
-                        <option value="15 - تيزي وزو">15 - تيزي وزو</option>
-                        <option value="16 - الجزائر">16 - الجزائر</option>
-                        <option value="17 - الجلفة">17 - الجلفة</option>
-                        <option value="18 - جيجل">18 - جيجل</option>
-                        <option value="19 - سطيف">19 - سطيف</option>
-                        <option value="20 - سعيدة">20 - سعيدة</option>
-                        <option value="21 - سكيكدة">21 - سكيكدة</option>
-                        <option value="22 - سيدي بلعباس">22 - سيدي بلعباس</option>
-                        <option value="23 - عنابة">23 - عنابة</option>
-                        <option value="24 - قالمة">24 - قالمة</option>
-                        <option value="25 - قسنطينة">25 - قسنطينة</option>
-                        <option value="26 - المدية">26 - المدية</option>
-                        <option value="27 - مستغانم">27 - مستغانم</option>
-                        <option value="28 - المسيلة">28 - المسيلة</option>
-                        <option value="29 - معسكر">29 - معسكر</option>
-                        <option value="30 - ورقلة">30 - ورقلة</option>
-                        <option value="31 - وهران">31 - وهران</option>
-                        <option value="32 - البيض">32 - البيض</option>
-                        <option value="33 - إليزي">33 - إليزي</option>
-                        <option value="34 - برج بوعريريج">34 - برج بوعريريج</option>
-                        <option value="35 - بومرداس">35 - بومرداس</option>
-                        <option value="36 - الطارف">36 - الطارف</option>
-                        <option value="37 - تندوف">37 - تندوف</option>
-                        <option value="38 - تيسمسيلت">38 - تيسمسيلت</option>
-                        <option value="39 - الوادي">39 - الوادي</option>
-                        <option value="40 - خنشلة">40 - خنشلة</option>
-                        <option value="41 - سوق أهراس">41 - سوق أهراس</option>
-                        <option value="42 - تيبازة">42 - تيبازة</option>
-                        <option value="43 - ميلة">43 - ميلة</option>
-                        <option value="44 - عين الدفلى">44 - عين الدفلى</option>
-                        <option value="45 - النعامة">45 - النعامة</option>
-                        <option value="46 - عين تموشنت">46 - عين تموشنت</option>
-                        <option value="47 - غرداية">47 - غرداية</option>
-                        <option value="48 - غليزان">48 - غليزان</option>
-                        <option value="49 - تيميمون">49 - تيميمون</option>
-                        <option value="50 - برج باجي مختار">50 - برج باجي مختار</option>
-                        <option value="51 - أولاد جلال">51 - أولاد جلال</option>
-                        <option value="52 - بني عباس">52 - بني عباس</option>
-                        <option value="53 - عين صالح">53 - عين صالح</option>
-                        <option value="54 - عين قزام">54 - عين قزام</option>
-                        <option value="55 - تقرت">55 - تقرت</option>
-                        <option value="56 - جانت">56 - جانت</option>
-                        <option value="57 - المغير">57 - المغير</option>
-                        <option value="58 - المنيعة">58 - المنيعة</option>
+                        <option value="01">01 - أدرار</option>
+                        <option value="02">02 - الشلف</option>
+                        <option value="03">03 - الأغواط</option>
+                        <option value="04">04 - أم البواقي</option>
+                        <option value="05">05 - باتنة</option>
+                        <option value="06">06 - بجاية</option>
+                        <option value="07">07 - بسكرة</option>
+                        <option value="08">08 - بشار</option>
+                        <option value="09">09 - البليدة</option>
+                        <option value="10">10 - البويرة</option>
+                        <option value="11">11 - تمنراست</option>
+                        <option value="12">12 - تبسة</option>
+                        <option value="13">13 - تلمسان</option>
+                        <option value="14">14 - تيارت</option>
+                        <option value="15">15 - تيزي وزو</option>
+                        <option value="16">16 - الجزائر</option>
+                        <option value="17">17 - الجلفة</option>
+                        <option value="18">18 - جيجل</option>
+                        <option value="19">19 - سطيف</option>
+                        <option value="20">20 - سعيدة</option>
+                        <option value="21">21 - سكيكدة</option>
+                        <option value="22">22 - سيدي بلعباس</option>
+                        <option value="23">23 - عنابة</option>
+                        <option value="24">24 - قالمة</option>
+                        <option value="25">25 - قسنطينة</option>
+                        <option value="26">26 - المدية</option>
+                        <option value="27">27 - مستغانم</option>
+                        <option value="28">28 - المسيلة</option>
+                        <option value="29">29 - معسكر</option>
+                        <option value="30">30 - ورقلة</option>
+                        <option value="31">31 - وهران</option>
+                        <option value="32">32 - البيض</option>
+                        <option value="33">33 - إليزي</option>
+                        <option value="34">34 - برج بوعريريج</option>
+                        <option value="35">35 - بومرداس</option>
+                        <option value="36">36 - الطارف</option>
+                        <option value="37">37 - تندوف</option>
+                        <option value="38">38 - تيسمسيلت</option>
+                        <option value="39">39 - الوادي</option>
+                        <option value="40">40 - خنشلة</option>
+                        <option value="41">41 - سوق أهراس</option>
+                        <option value="42">42 - تيبازة</option>
+                        <option value="43">43 - ميلة</option>
+                        <option value="44">44 - عين الدفلى</option>
+                        <option value="45">45 - النعامة</option>
+                        <option value="46">46 - عين تموشنت</option>
+                        <option value="47">47 - غرداية</option>
+                        <option value="48">48 - غليزان</option>
+                        <option value="49">49 - تيميمون</option>
+                        <option value="50">50 - برج باجي مختار</option>
+                        <option value="51">51 - أولاد جلال</option>
+                        <option value="52">52 - بني عباس</option>
+                        <option value="53">53 - عين صالح</option>
+                        <option value="54">54 - عين قزام</option>
+                        <option value="55">55 - تقرت</option>
+                        <option value="56">56 - جانت</option>
+                        <option value="57">57 - المغير</option>
+                        <option value="58">58 - المنيعة</option>
                     </select>
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label>البلدية / العنوان بالتفصيل</label>
-                    <textarea id="address" rows="3" required placeholder="اسم البلدية والحي..."></textarea>
+                    <textarea id="address" rows="2" required placeholder="اسم البلدية، الحي، الشارع..."></textarea>
                 </div>
 
+                <div class="form-group">
+                    <label>نوع التوصيل</label>
+                    <select id="delivery-type" required>
+                        <option value="home">توصيل إلى المنزل</option>
+                        <option value="office">استلام من المكتب</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>ملاحظات إضافية (اختياري)</label>
+                    <textarea id="notes" rows="2" placeholder="أي تفاصيل تساعدنا في التوصيل..."></textarea>
+                </div>
+
+                <div class="form-section-title">طريقة الدفع</div>
                 <div class="payment-method">
                     <input type="radio" id="cod" name="payment" value="cod" checked>
-                    <label for="cod">الدفع عند الاستلام (COD) 💵</label>
+                    <label for="cod">الدفع عند الاستلام (COD)</label>
                 </div>
 
-                <button type="submit" class="submit-btn">تأكيد الطلب ✅</button>
+                <button type="submit" class="submit-btn" id="submit-order-btn">تأكيد الطلب</button>
             </form>
         </div>
 
         <!-- ملخص الطلب -->
         <div class="order-summary">
             <h2>ملخص الطلب</h2>
-            <div id="summary-items">
-                <!-- المنتجات راح تطلع هنا -->
+            <div id="summary-items"></div>
+            
+            <div class="divider"></div>
+            
+            <div class="summary-row">
+                <span>المجموع الفرعي:</span>
+                <span id="subtotal-price">0 دج</span>
             </div>
-            <div class="summary-total">
-                <span>المجموع الكلي:</span>
-                <span id="checkout-total">0 دج</span>
+            <div class="summary-row" id="shipping-row" style="display: none;">
+                <span>التوصيل:</span>
+                <span id="shipping-price">0 دج</span>
             </div>
-                        <div style="margin-top: 15px; border-top: 1px solid #444; padding-top: 15px;">
-                <label style="color: #ccc; font-weight: bold; display: block; margin-bottom: 5px;">كود الخصم</label>
-                <div style="display: flex; gap: 5px;">
-                    <input type="text" id="coupon-code" placeholder="أدخل الكود" style="flex: 1; padding: 10px; border-radius: 5px; border: none;">
-                    <button type="button" onclick="applyCoupon()" style="background: #e74c3c; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold;">تطبيق</button>
-                </div>
-                <p id="coupon-message" style="font-size: 14px; margin-top: 5px;"></p>
+            <div class="summary-row total">
+                <span>المجموع:</span>
+                <span id="total-price">0 دج</span>
             </div>
+
+            <ul class="trust-points">
+                <li>الدفع عند الاستلام</li>
+                <li>التوصيل لكل الولايات (58)</li>
+                <li>إمكانية الإرجاع</li>
+            </ul>
         </div>
     </div>
 
+    <script type="module" src="firebase-config.js"></script>
     <script type="module" src="checkout.js"></script>
 </body>
 </html>

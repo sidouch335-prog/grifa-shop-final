@@ -1,122 +1,159 @@
 import { db } from './firebase-config.js';
-import { collection, addDoc, getDocs, query, where, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
+import { collection, addDoc, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
+import { shippingRates } from './shipping.js';
 
 let cart = JSON.parse(localStorage.getItem('grifa_cart')) || [];
-let total = 0;
+console.log("السلة في checkout:", cart);
+let subtotal = 0;
+let shippingCost = 0;
 let discount = 0;
+let isSubmitting = false;
 
-// أسعار التوصيل (نقدرو نخليوهم هكذا دوكا، ولا نربطوهم مع صفحة التوصيل)
-const shippingPrices = {
-    "16": 400, "31": 600, "25": 600, "19": 500, "09": 400, "06": 500, "default": 800
-};
-
-// نعرضو ملخص الطلب في الصفحة
+// --- 1. عرض ملخص الطلب ---
+console.log("السلة في checkout:", cart);
 function renderSummary() {
     const summaryItems = document.getElementById('summary-items');
-    const totalElement = document.getElementById('checkout-total');
-    
+    const subtotalElement = document.getElementById('subtotal-price');
+    const totalElement = document.getElementById('total-price');
+
+    if (!summaryItems) return;
+
     summaryItems.innerHTML = '';
-    total = 0;
-    
+    subtotal = 0;
+
     if (cart.length === 0) {
-        summaryItems.innerHTML = '<p style="color: #ccc;">السلة فارغة</p>';
-        totalElement.innerText = '0 دج';
+        summaryItems.innerHTML = '<p style="color: #777;">السلة فارغة</p>';
+        if (subtotalElement) subtotalElement.innerText = '0 دج';
+        if (totalElement) totalElement.innerText = '0 دج';
         return;
     }
 
     cart.forEach(item => {
-        total += item.price * (item.quantity || 1);
+        subtotal += item.price * (item.quantity || 1);
         summaryItems.innerHTML += `
-            <div class="summary-item">
+            <div class="summary-row" style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; color: #555;">
                 <span>${item.name} (x${item.quantity || 1})</span>
                 <span>${item.price * (item.quantity || 1)} دج</span>
             </div>
         `;
     });
 
-    totalElement.innerText = total + ' دج';
+    if (subtotalElement) subtotalElement.innerText = subtotal + ' دج';
+    updateTotals(); // نستدعيو الدالة باش نحسبو التوصيل والمجموع النهائي
 }
 
-// كي تبدل الولاية، نزيدو ثمن التوصيل
-document.getElementById('wilaya').addEventListener('change', function() {
-    const wilayaValue = this.value;
-    const wilayaCode = wilayaValue.split(' ')[0];
-    const shipping = shippingPrices[wilayaCode] || shippingPrices['default'];
-    const finalTotal = total - discount + shipping;
-    document.getElementById('checkout-total').innerText = finalTotal + ' دج';
-});
+// --- 2. حساب المجموع النهائي (مع التوصيل والخصم) ---
+function updateTotals() {
+    const wilayaSelect = document.getElementById('wilaya');
+    const deliveryTypeSelect = document.getElementById('delivery-type');
+    const shippingRow = document.getElementById('shipping-row');
+    const shippingElement = document.getElementById('shipping-price');
+    const totalElement = document.getElementById('total-price');
 
-// تطبيق الكوبون
+    if (!wilayaSelect || !deliveryTypeSelect || !shippingRow || !shippingElement || !totalElement) return;
+
+    const wilaya = wilayaSelect.value;
+    const deliveryType = deliveryTypeSelect.value;
+
+    if (wilaya) {
+        const rates = shippingRates[wilaya] || shippingRates['default'];
+        shippingCost = deliveryType === 'home' ? rates.home : rates.office;
+        shippingRow.style.display = 'flex';
+        shippingElement.innerText = shippingCost + ' دج';
+    } else {
+        shippingCost = 0;
+        shippingRow.style.display = 'none';
+    }
+
+    const finalTotal = subtotal - discount + shippingCost;
+    totalElement.innerText = finalTotal + ' دج';
+}
+
+// --- 3. تطبيق الكوبون ---
 window.applyCoupon = async function() {
     const code = document.getElementById('coupon-code').value.trim().toUpperCase();
     const message = document.getElementById('coupon-message');
-    const totalElement = document.getElementById('checkout-total');
+    if (!message) return;
 
     try {
-        const q = query(collection(db, "coupons"), where("code", "==", code));
-        const querySnapshot = await getDocs(q);
+        const querySnapshot = await getDocs(collection(db, "coupons"));
+        let found = false;
 
-        if (!querySnapshot.empty) {
-            const couponData = querySnapshot.docs[0].data();
-            discount = total * (couponData.discount / 100);
-            const newTotal = total - discount;
-            totalElement.innerText = newTotal + ' دج';
-            message.innerText = `تم تطبيق خصم ${couponData.discount}%!`;
-            message.style.color = '#27ae60';
-        } else {
+        querySnapshot.forEach((doc) => {
+            const coupon = doc.data();
+            if (coupon.code === code) {
+                discount = subtotal * (coupon.discount / 100);
+                message.innerText = `تم تطبيق خصم ${coupon.discount}%!`;
+                message.style.color = '#27ae60';
+                found = true;
+            }
+        });
+
+        if (!found) {
             discount = 0;
-            totalElement.innerText = total + ' دج';
             message.innerText = 'كود الخصم غير صالح.';
             message.style.color = '#e74c3c';
         }
+        updateTotals();
     } catch (error) {
         console.error("خطأ: ", error);
-        message.innerText = 'حدث خطأ في الاتصال.';
-        message.style.color = '#e74c3c';
     }
 };
 
-document.addEventListener('DOMContentLoaded', renderSummary);
-
-// تأكيد الطلب
-document.getElementById('checkout-form').addEventListener('submit', async function(e) {
+// --- 4. تأكيد الطلب ---
+document.getElementById('checkout-form')?.addEventListener('submit', async function(e) {
     e.preventDefault();
-
-    if (cart.length === 0) {
-        alert("السلة فارغة! زيد منتجات قبل ما تكمل الطلب.");
-        window.location.href = "index.html";
-        return;
-    }
+    if (isSubmitting) return;
 
     const name = document.getElementById('fullname').value;
     const phone = document.getElementById('phone').value;
     const wilaya = document.getElementById('wilaya').value;
     const address = document.getElementById('address').value;
+    const deliveryType = document.getElementById('delivery-type')?.value || 'home';
+    const notes = document.getElementById('notes')?.value || '';
 
-    const wilayaCode = wilaya.split(' ')[0];
-    const shipping = shippingPrices[wilayaCode] || shippingPrices['default'];
-    const finalTotal = total - discount + shipping;
+    if (!/^0[5-7][0-9]{8}$/.test(phone)) {
+        alert("رقم الهاتف غير صحيح. يجب أن يكون 10 أرقام ويبدأ بـ 05 أو 06 أو 07.");
+        return;
+    }
+
+    if (cart.length === 0) {
+        alert("السلة فارغة!");
+        return;
+    }
+
+    isSubmitting = true;
+    const submitBtn = document.getElementById('submit-order-btn');
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerText = 'جاري المعالجة...';
+    }
 
     try {
-        await addDoc(collection(db, "orders"), {
+        const orderData = {
+            orderNumber: 'ORD-' + Date.now(),
+            date: new Date().toISOString(),
             name: name,
             phone: phone,
             wilaya: wilaya,
             address: address,
+            deliveryType: deliveryType,
+            notes: notes,
             items: cart,
-            total: finalTotal,
-            date: new Date().toISOString().split('T')[0], // YYYY-MM-DD
-        });
+            subtotal: subtotal,
+            shipping: shippingCost,
+            discount: discount,
+            total: subtotal - discount + shippingCost,
+            status: "جديد"
+        };
 
-        // ننقصو الكمية من المخزون
+        await addDoc(collection(db, "orders"), orderData);
+
         for (const item of cart) {
             const productQuery = await getDocs(collection(db, "products"));
             let productDoc = null;
             productQuery.forEach((doc) => {
-                const p = doc.data();
-                if (p.name === item.name) {
-                    productDoc = { id: doc.id, data: p };
-                }
+                if (doc.data().name === item.name) productDoc = { id: doc.id, data: doc.data() };
             });
             if (productDoc) {
                 const newStock = (productDoc.data.stock || 0) - (item.quantity || 1);
@@ -124,11 +161,30 @@ document.getElementById('checkout-form').addEventListener('submit', async functi
             }
         }
 
-        alert(`شكراً ${name}!\nتم استلام طلبك بنجاح.\nالمجموع الكلي: ${finalTotal} دج`);
+        let localOrders = JSON.parse(localStorage.getItem('orders')) || [];
+        localOrders.push(orderData);
+        localStorage.setItem('orders', JSON.stringify(localOrders));
+
+        alert(`شكراً ${name}!\nتم استلام طلبك بنجاح.\nرقم الطلب: ${orderData.orderNumber}`);
+        
         localStorage.removeItem('grifa_cart');
         window.location.href = "index.html";
+
     } catch (error) {
         console.error("خطأ: ", error);
-        alert("حدث خطأ أثناء حفظ الطلب.");
+        alert("حدث خطأ أثناء حفظ الطلب: " + error.message);
+    } finally {
+        isSubmitting = false;
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerText = 'تأكيد الطلب';
+        }
     }
+});
+
+// --- 5. ربط الأحداث كي تفتح الصفحة ---
+document.addEventListener('DOMContentLoaded', () => {
+    renderSummary();
+    document.getElementById('wilaya')?.addEventListener('change', updateTotals);
+    document.getElementById('delivery-type')?.addEventListener('change', updateTotals);
 });

@@ -1,45 +1,93 @@
 let cart = JSON.parse(localStorage.getItem('grifa_cart')) || [];
 const container = document.getElementById('cart-items-container');
-const summaryBox = document.getElementById('summary-box');
-const subtotalElement = document.getElementById('subtotal-price');
-const totalElement = document.getElementById('total-price');
+const orderSummary = document.getElementById('order-summary');
+const subtotalElement = document.getElementById('subtotal');
+const totalElement = document.getElementById('total');
+const cartCountElement = document.getElementById('cart-count');
+const mobileBottomBar = document.getElementById('mobile-bottom-bar');
+const mobileTotalElement = document.getElementById('mobile-total');
+
+// تنسيق السعر مع فواصل الآلاف
+function formatPrice(price) {
+    return price.toLocaleString('fr-DZ') + ' دج';
+}
 
 function renderCart() {
-    if (!container) return;
     container.innerHTML = '';
-    let total = 0;
+    let subtotal = 0;
+    let totalItems = 0;
 
     if (cart.length === 0) {
-        container.innerHTML = '<div class="empty-cart"><h2>السلة فارغة 🛒</h2><p>روح للمتجر وزيد منتجات.</p></div>';
-        if (summaryBox) summaryBox.style.display = 'none';
+        container.innerHTML = `
+            <div class="empty-cart-card">
+                <div class="icon">🛒</div>
+                <h2>سلتك فارغة</h2>
+                <p>لم تقم بإضافة أي منتج إلى السلة بعد.</p>
+                <a href="index.html" class="btn">تصفح المنتجات</a>
+            </div>
+        `;
+        orderSummary.style.display = 'none';
+        mobileBottomBar.style.display = 'none';
+        cartCountElement.innerText = '';
         return;
     }
 
     cart.forEach((item, index) => {
-        total += item.price * (item.quantity || 1);
+        const quantity = item.quantity || 1;
+        const itemTotal = item.price * quantity;
+        subtotal += itemTotal;
+        totalItems += quantity;
+
+        // استخراج المتغيرات (المقاس واللون) إذا وجدت
+        let variantText = '';
+        if (item.name.includes('(') && item.name.includes(')')) {
+            const match = item.name.match(/\((.*?)\)/);
+            if (match) {
+                variantText = match[1];
+                // إزالة المتغيرات من الاسم الأساسي
+                item.name = item.name.replace(/\(.*?\)/, '').trim();
+            }
+        }
 
         const itemDiv = document.createElement('div');
         itemDiv.className = 'cart-item';
-        itemDiv.innerHTML = `
-            <img src="${item.image || 'https://via.placeholder.com/80'}" alt="${item.name}">
-            <div class="cart-item-info">
-                <h3>${item.name}</h3>
-                <p>${item.price} دج</p>
+        
+        // تحديد الصورة أو البديل
+        const imgSrc = item.image || 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'96\' height=\'96\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23ccc\' stroke-width=\'1\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Crect x=\'3\' y=\'3\' width=\'18\' height=\'18\' rx=\'2\' ry=\'2\'%3E%3C/rect%3E%3Ccircle cx=\'8.5\' cy=\'8.5\' r=\'1.5\'%3E%3C/circle%3E%3Cpolyline points=\'21 15 16 10 5 21\'%3E%3C/polyline%3E%3C/svg%3E';
+
+              itemDiv.innerHTML = `
+            <img src="${imgSrc}" alt="${item.name}">
+            <div class="item-info">
+                <div class="item-name">${item.name}</div>
+                ${variantText ? `<div class="item-variant">${variantText}</div>` : ''}
+                <div class="item-unit-price">${formatPrice(item.price)} للقطعة</div> <!-- زدنا "للقطعة" -->
             </div>
-            <div class="quantity-controls">
-                <button onclick="updateQuantity(${index}, -1)">-</button>
-                <span>${item.quantity || 1}</span>
-                <button onclick="updateQuantity(${index}, 1)">+</button>
+            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px; margin-left: auto;">
+                <div class="item-total-price" style="margin-top: 0;">${formatPrice(itemTotal)}</div> <!-- السعر الإجمالي بالأحمر -->
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <div class="quantity-controls">
+                        <button onclick="updateQuantity(${index}, -1)">−</button> <!-- بدلنا - بـ − -->
+                        <span>${quantity}</span>
+                        <button onclick="updateQuantity(${index}, 1)">+</button>
+                    </div>
+                    <button class="remove-btn" onclick="removeItem(${index})">حذف</button>
+                </div>
             </div>
-            <button class="remove-btn" onclick="removeItem(${index})">✖</button>
         `;
+
         container.appendChild(itemDiv);
     });
 
-    if (summaryBox) {
-        summaryBox.style.display = 'block';
-        subtotalElement.innerText = total + ' دج';
-        totalElement.innerText = total + ' دج';
+    orderSummary.style.display = 'block';
+    subtotalElement.innerText = formatPrice(subtotal);
+    totalElement.innerText = formatPrice(subtotal);
+    cartCountElement.innerText = `(${totalItems} قطعة)`;
+
+    if (window.innerWidth <= 800) {
+        mobileBottomBar.style.display = 'flex';
+        mobileTotalElement.innerText = formatPrice(subtotal);
+    } else {
+        mobileBottomBar.style.display = 'none';
     }
 }
 
@@ -50,7 +98,6 @@ window.updateQuantity = function(index, change) {
         cart[index].quantity += change;
         localStorage.setItem('grifa_cart', JSON.stringify(cart));
         renderCart();
-        if (window.updateCartCount) window.updateCartCount();
     }
 };
 
@@ -58,7 +105,9 @@ window.removeItem = function(index) {
     cart.splice(index, 1);
     localStorage.setItem('grifa_cart', JSON.stringify(cart));
     renderCart();
-    if (window.updateCartCount) window.updateCartCount();
 };
+
+// إعادة رسم السلة عند تغيير حجم الشاشة
+window.addEventListener('resize', renderCart);
 
 document.addEventListener('DOMContentLoaded', renderCart);
